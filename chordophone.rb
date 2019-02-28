@@ -3,9 +3,9 @@
 module Chordophone
 
 class Cosmography
-  attr_accessor :squama
+  attr_accessor :squama, :tuning
 
-  def initialize(tuning='ennead')
+  def initialize(tuning = :unison)
     @tuning = tuning
     @squama = {
       :j2 => 'HgHg PuFe ____ ____ CuNp PbAu ____ AuPb ____ AgUr ____ FePu ',
@@ -203,50 +203,48 @@ class Cosmography
     layout % pitches
   end
 
+  def unison(str)
+    "\t#{self.peg_Cn(str)}"
+  end
+
   def headstock(signat)
     if (self.squama.key? signat) then
       case @tuning
-        when 'cello', /cgda/, 'fiddle', /gdae/, /mando/, /viol/
-          board = self.cgdae(self.squama[signat])
-          tuned = 'cgdae'
-        when /bf|fb/, /b5/, /#4/, /triton/
+        when :bfbfb
           board = self.bfbfb(self.squama[signat])
           tuned = 'bfbfb'
-        when /dgbe/, 'guitar', /ukule/
-          board = self.eadgbe(self.squama[signat])
-          tuned = 'eadgbe'
-        when /dgdg|dgbd/, /slack/, /open/
-          board = self.dgdgbd(self.squama[signat])
-          tuned = 'dgdgbd'
-        when /dadg|dgad/, /celt/
+        when :cgdae
+          board = self.cgdae(self.squama[signat])
+          tuned = 'cgdae'
+        when :dadgad
           board = self.dadgad(self.squama[signat])
           tuned = 'dadgad'
-        when 'fkbjdn', /m|M3/
+        when :dgdgbd
+          board = self.dgdgbd(self.squama[signat])
+          tuned = 'dgdgbd'
+        when :eadgbe
+          board = self.eadgbe(self.squama[signat])
+          tuned = 'eadgbe'
+        when :ennead
+          board = self.ennead(self.squama[signat])
+          tuned = 'ennead' 
+        when :fkbjdn
           board = self.fkbjdn(self.squama[signat])
           tuned = 'fkbjdn'
         else
-          board = self.ennead(self.squama[signat])
-          tuned = 'ennead'
+          board = self.unison(self.squama[signat])
+          tuned = 'unison'
       end
       epoch = Time.now.to_i
-      puts "\t#{signat}-#{tuned}-#{epoch}"
+      puts "\t#{signat}-#{tuned}-qe#{epoch}"
       puts board
     else
       puts "\t#{signat}?"
     end
   end
 
-end
-
-end # close namespace
-
-if __FILE__ == $0 then
-  instrum = Chordophone::Cosmography.new('guitar')
-  instrum.squama[:z] = '____ ' * 12
-  if ARGV.count > 0 then
-    puts
-  else
-    i, a = 0, instrum.squama.keys.sort
+  def menu
+    i, a = 0, self.squama.keys.sort
     puts
     a.each do |k|
       print "\t", k
@@ -255,11 +253,51 @@ if __FILE__ == $0 then
         print "\n"
       end
     end
-    puts
+    puts 
   end
-  ARGV.each do |qp|
-    instrum.headstock qp.to_sym
-    puts
+
+  def fingerboard(params)
+    self.squama[:z0] = '____ ' * 12
+
+    if params.count > 0 then
+      if /\A[^jknz].+\Z/.match params[0] then
+        case params[0]
+          when /cello|gda|fiddl|mando|[pP]5|viol/
+            self.tuning = :cgdae
+          when /^([aA]4|b5|bf|fb|tri)/
+            self.tuning = :bfbfb
+          when /dgbe|guitar|std|ukule/
+            self.tuning = :eadgbe
+          when /dgdg|dgbd|slack|open/
+            self.tuning = :dgdgbd
+          when /dadg|dgad|celt/
+            self.tuning = :dadgad
+          when /fkbj|bjdn|dnfk|[mM]3/
+            self.tuning = :fkbjdn
+          when /bead|eadg|enne|[pP]4/
+            self.tuning = :ennead
+          else
+            self.tuning = :unison
+        end
+        params.shift
+      end
+      params[0] ? puts(nil) : self.menu
+    else
+      self.menu
+    end
+
+    params.each do |qp|
+      self.headstock qp.to_sym
+      puts
+    end
   end
-end
+
+end # close cosmography
+
+  if __FILE__ == $0 then
+    instrum = Cosmography.new(:eadgbe)
+    instrum.fingerboard(ARGV)
+  end
+
+end # close chordophone
 
