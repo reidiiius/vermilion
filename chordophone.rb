@@ -1,13 +1,26 @@
-#!/usr/bin/env ruby
+#! /usr/bin/env ruby
 
 module Chordophone
 
 class Cosmography
-  attr_accessor :squama, :tuning
+  attr_accessor :gears, :scales, :tuning
 
   def initialize(tuning = :unison)
     @tuning = tuning
-    @squama = {
+
+    @gears = {
+      :Bj => 50,
+      :Fn => 25,
+      :Cn =>  0,
+      :Gn => 35,
+      :Dn => 10,
+      :An => 45,
+      :En => 20,
+      :Bn => 55,
+      :Fk => 30
+    }
+
+    @scales = {
       :j2 => 'HgHg PuFe ____ ____ CuNp PbAu ____ AuPb ____ AgUr ____ FePu ',
       :j3 => 'HgSn ____ SnHg UrFe ____ PbAg ____ AuAu ____ AgPb ____ FeUr ',
       :j5 => 'PbCu ____ AuSn ____ AgHg TiFe FeTi ____ ____ SnAu ____ CuPb ',
@@ -93,158 +106,171 @@ class Cosmography
  :k2j56y7 => 'NpCu ____ ____ FePu HgHg PuFe SnTi ____ CuNp PbAu ____ ____ '}
   end
 
-  def peg_Bj(str)
-    str[50,60] << str[ 0,50]
+
+  def machine(str, ndx)
+    str[ndx, 60] << str[ 0, ndx]
   end
 
-  def peg_Fn(str)
-    str[25,60] << str[ 0,25]
+
+  def lattice(cord, pegs)
+    courses = pegs.map { |tensor|
+      self.machine(cord, self.gears[tensor])
+    }
+
+    layout = "\t%s\n" * pegs.length
+
+    layout % courses
   end
 
-  def peg_Cn(str)
-    str[ 0,60]
-  end
 
-  def peg_Gn(str)
-    str[35,60] << str[ 0,35]
-  end
-
-  def peg_Dn(str)
-    str[10,60] << str[ 0,10]
-  end
-
-  def peg_An(str)
-    str[45,60] << str[ 0,45]
-  end
-
-  def peg_En(str)
-    str[20,60] << str[ 0,20]
-  end
-
-  def peg_Bn(str)
-    str[55,60] << str[ 0,55]
-  end
-
-  def peg_Fk(str)
-    str[30,60] << str[ 0,30]
-  end
-
-  def bfbfb(str)
-    layout = "\t%s\n" * 5
-    bn = self.peg_Bn(str)
-    fn = self.peg_Fn(str) 
-    pitches = [bn, fn, bn, fn, bn]
-    layout % pitches
-  end
-
-  def cgdae(str)
-    layout = "\t%s\n" * 5
-    pitches = [
-      self.peg_En(str),
-      self.peg_An(str),
-      self.peg_Dn(str),
-      self.peg_Gn(str),
-      self.peg_Cn(str)
+  def bfbfb(cord)
+    pegs = [
+      :Bn,
+      :Fn,
+      :Bn,
+      :Fn,
+      :Bn,
     ]
-    layout % pitches
+
+    self.lattice(cord, pegs)
   end
 
-  def dadgad(str)
-    layout = "\t%s\n" * 6
-    gn = self.peg_Gn(str)
-    dn = self.peg_Dn(str)
-    an = self.peg_An(str)
-    pitches = [dn, an, dn, gn, an, dn].reverse
-    layout % pitches
+
+  def cgdae(cord)
+    pegs = [
+      :Cn,
+      :Gn,
+      :Dn,
+      :An,
+      :En,
+    ].reverse
+
+    self.lattice(cord, pegs)
   end
 
-  def dgdgbd(str)
-    layout = "\t%s\n" * 6
-    bn = self.peg_Bn(str)
-    gn = self.peg_Gn(str)
-    dn = self.peg_Dn(str)
-    pitches = [dn, gn, dn, gn, bn, dn].reverse
-    layout % pitches
-  end
 
-  def eadgbe(str)
-    layout = "\t%s\n" * 6
-    gn = self.peg_Gn(str)
-    dn = self.peg_Dn(str)
-    an = self.peg_An(str)
-    en = self.peg_En(str)
-    bn = self.peg_Bn(str)
-    pitches = [en, an, dn, gn, bn, en].reverse
-    layout % pitches
-  end
-
-  def ennead(str)
-    layout = "\t%s\n" * 9
-    pitches = [
-      self.peg_Bj(str),
-      self.peg_Fn(str),
-      self.peg_Cn(str),
-      self.peg_Gn(str),
-      self.peg_Dn(str),
-      self.peg_An(str),
-      self.peg_En(str),
-      self.peg_Bn(str),
-      self.peg_Fk(str)
+  def dadgad(cord)
+    pegs = [
+      :Dn,
+      :An,
+      :Gn,
+      :Dn,
+      :An,
+      :Dn,
     ]
-    layout % pitches
+
+    self.lattice(cord, pegs)
   end
 
-  def fkbjdn(str)
-    layout = "\t%s\n" * 6
-    fk = self.peg_Fk(str)
-    dn = self.peg_Dn(str)
-    bj = self.peg_Bj(str)
-    pitches = [fk, bj, dn, fk, bj, dn].reverse
-    layout % pitches
+
+  def dgdgbd(cord)
+    pegs = [
+      :Dn,
+      :Bn,
+      :Gn,
+      :Dn,
+      :Gn,
+      :Dn,
+    ]
+
+    self.lattice(cord, pegs)
   end
 
-  def unison(str)
-    "\t#{self.peg_Cn(str)}"
+
+  def eadgbe(cord)
+    pegs = [
+      :En,
+      :Bn,
+      :Gn,
+      :Dn,
+      :An,
+      :En,
+    ]
+
+    self.lattice(cord, pegs)
   end
 
-  def headstock(signat)
-    if (self.squama.key? signat) then
+
+  def ennead(cord)
+    pegs = [
+      :Bj,
+      :Fn,
+      :Cn,
+      :Gn,
+      :Dn,
+      :An,
+      :En,
+      :Bn,
+      :Fk,
+    ]
+
+    self.lattice(cord, pegs)
+  end
+
+
+  def fkbjdn(cord)
+    pegs = [
+      :Dn,
+      :Bj,
+      :Fk,
+      :Dn,
+      :Bj,
+      :Fk,
+    ]
+
+    self.lattice(cord, pegs)
+  end
+
+
+  def unison(cord)
+    pegs = [
+      :Cn,
+    ]
+
+    self.lattice(cord, pegs)
+  end
+
+
+  def headstock(sign)
+    if (self.scales.key? sign) then
       case @tuning
         when :bfbfb
-          board = self.bfbfb(self.squama[signat])
+          board = self.bfbfb(self.scales[sign])
           tuned = 'bfbfb'
         when :cgdae
-          board = self.cgdae(self.squama[signat])
+          board = self.cgdae(self.scales[sign])
           tuned = 'cgdae'
         when :dadgad
-          board = self.dadgad(self.squama[signat])
+          board = self.dadgad(self.scales[sign])
           tuned = 'dadgad'
         when :dgdgbd
-          board = self.dgdgbd(self.squama[signat])
+          board = self.dgdgbd(self.scales[sign])
           tuned = 'dgdgbd'
         when :eadgbe
-          board = self.eadgbe(self.squama[signat])
+          board = self.eadgbe(self.scales[sign])
           tuned = 'eadgbe'
         when :ennead
-          board = self.ennead(self.squama[signat])
+          board = self.ennead(self.scales[sign])
           tuned = 'ennead' 
         when :fkbjdn
-          board = self.fkbjdn(self.squama[signat])
+          board = self.fkbjdn(self.scales[sign])
           tuned = 'fkbjdn'
         else
-          board = self.unison(self.squama[signat])
+          board = self.unison(self.scales[sign])
           tuned = 'unison'
       end
+
       epoch = Time.now.to_i
-      puts "\t#{signat}-#{tuned}-qe#{epoch}"
+      puts "\t#{sign}-#{tuned}-i#{epoch}"
       puts board
     else
-      puts "\t#{signat}?"
+      puts "\t#{sign} ?"
     end
   end
 
-  def menu
-    i, a = 0, self.squama.keys.sort
+
+  def catalog
+    i, a = 0, self.scales.keys.sort
     puts
     a.each do |k|
       print "\t", k
@@ -256,8 +282,9 @@ class Cosmography
     puts 
   end
 
-  def fingerboard(params)
-    self.squama[:z0] = '____ ' * 12
+
+  def entryway(params)
+    self.scales[:z0] = '____ ' * 12
 
     if params.count > 0 then
       if /\A[^jknz].+\Z/.match params[0] then
@@ -281,22 +308,23 @@ class Cosmography
         end
         params.shift
       end
-      params[0] ? puts(nil) : self.menu
+      params[0] ? puts(nil) : self.catalog
     else
-      self.menu
+      self.catalog
     end
 
-    params.each do |qp|
-      self.headstock qp.to_sym
+    params.each do |argot|
+      self.headstock argot.to_sym
       puts
     end
   end
+
 
 end # close cosmography
 
   if __FILE__ == $0 then
     instrum = Cosmography.new(:eadgbe)
-    instrum.fingerboard(ARGV)
+    instrum.entryway(ARGV)
   end
 
 end # close chordophone
