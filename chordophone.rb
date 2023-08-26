@@ -113,155 +113,49 @@ class Cosmography
 
 
   def lattice(cord, pegs)
-    courses = pegs.map { |tensor|
-      self.machine(cord, self.gears[tensor])
+    crows = pegs.map { |pitch|
+      self.machine(cord, self.gears[pitch])
     }
 
-    layout = "\t%s\n" * pegs.length
+    layout = "\t%s\n" * crows.length
 
-    layout % courses
+    layout % crows
   end
 
 
-  def bfbfb(cord)
-    pegs = [
-      :Bn,
-      :Fn,
-      :Bn,
-      :Fn,
-      :Bn,
-    ]
-
-    self.lattice(cord, pegs)
-  end
-
-
-  def cgdae(cord)
-    pegs = [
-      :Cn,
-      :Gn,
-      :Dn,
-      :An,
-      :En,
-    ].reverse
-
-    self.lattice(cord, pegs)
-  end
-
-
-  def dadgad(cord)
-    pegs = [
-      :Dn,
-      :An,
-      :Gn,
-      :Dn,
-      :An,
-      :Dn,
-    ]
-
-    self.lattice(cord, pegs)
-  end
-
-
-  def dgdgbd(cord)
-    pegs = [
-      :Dn,
-      :Bn,
-      :Gn,
-      :Dn,
-      :Gn,
-      :Dn,
-    ]
-
-    self.lattice(cord, pegs)
-  end
-
-
-  def eadgbe(cord)
-    pegs = [
-      :En,
-      :Bn,
-      :Gn,
-      :Dn,
-      :An,
-      :En,
-    ]
-
-    self.lattice(cord, pegs)
-  end
-
-
-  def ennead(cord)
-    pegs = [
-      :Bj,
-      :Fn,
-      :Cn,
-      :Gn,
-      :Dn,
-      :An,
-      :En,
-      :Bn,
-      :Fk,
-    ]
-
-    self.lattice(cord, pegs)
-  end
-
-
-  def fkbjdn(cord)
-    pegs = [
-      :Dn,
-      :Bj,
-      :Fk,
-      :Dn,
-      :Bj,
-      :Fk,
-    ]
-
-    self.lattice(cord, pegs)
-  end
-
-
-  def unison(cord)
-    pegs = [
-      :Cn,
-    ]
-
-    self.lattice(cord, pegs)
+  def pitchfork(tune)
+    case tune
+      when :bfbfb
+        pegs = [:Bn, :Fn, :Bn, :Fn, :Bn]
+      when :cgdae
+        pegs = [:Cn, :Gn, :Dn, :An, :En].reverse
+      when :dadgad
+        pegs = [:Dn, :An, :Gn, :Dn, :An, :Dn]
+      when :dgdgbd
+        pegs = [:Dn, :Bn, :Gn, :Dn, :Gn, :Dn]
+      when :eadgbe
+        pegs = [:En, :Bn, :Gn, :Dn, :An, :En]
+      when :beadgcf
+        pegs = [:Fn, :Cn, :Gn, :Dn, :An, :En, :Bn]
+      when :fkbjdn
+        pegs = [:Dn, :Bj, :Fk, :Dn, :Bj, :Fk]
+      else
+        pegs = [:Cn]
+    end
   end
 
 
   def headstock(sign)
     if (self.scales.key? sign) then
-      case @tuning
-        when :bfbfb
-          board = self.bfbfb(self.scales[sign])
-          tuned = 'bfbfb'
-        when :cgdae
-          board = self.cgdae(self.scales[sign])
-          tuned = 'cgdae'
-        when :dadgad
-          board = self.dadgad(self.scales[sign])
-          tuned = 'dadgad'
-        when :dgdgbd
-          board = self.dgdgbd(self.scales[sign])
-          tuned = 'dgdgbd'
-        when :eadgbe
-          board = self.eadgbe(self.scales[sign])
-          tuned = 'eadgbe'
-        when :ennead
-          board = self.ennead(self.scales[sign])
-          tuned = 'ennead' 
-        when :fkbjdn
-          board = self.fkbjdn(self.scales[sign])
-          tuned = 'fkbjdn'
-        else
-          board = self.unison(self.scales[sign])
-          tuned = 'unison'
-      end
+      tune = @tuning
+      pegs = pitchfork(tune)
 
-      epoch = Time.now.to_i
-      puts "\t#{sign}-#{tuned}-i#{epoch}"
+      cord = self.scales[sign]
+      board = self.lattice(cord, pegs)
+
+      epoch = "%.3f" % Time.now.to_f
+
+      puts "\t#{sign}-#{tune}-i#{epoch}"
       puts board
     else
       puts "\t#{sign} ?"
@@ -270,12 +164,14 @@ class Cosmography
 
 
   def catalog
-    i, a = 0, self.scales.keys.sort
+    clefs = self.scales.keys.sort
+    cycle = 0
+
     puts
-    a.each do |k|
-      print "\t", k
-      i += 1
-      if i % 7 == 0 then
+    clefs.each do |sign|
+      print "\t", sign
+      cycle += 1
+      if cycle % 7 == 0 then
         print "\n"
       end
     end
@@ -284,16 +180,14 @@ class Cosmography
 
 
   def entryway(params)
-    self.scales[:z0] = '____ ' * 12
-
     if params.count > 0 then
       if /\A[^jknz].+\Z/.match params[0] then
         case params[0]
-          when /cello|gda|fiddl|mando|[pP]5|viol/
+          when /cello|gda|mand|[pP]5|viol/
             self.tuning = :cgdae
           when /^([aA]4|b5|bf|fb|tri)/
             self.tuning = :bfbfb
-          when /dgbe|guitar|std|ukule/
+          when /dgbe|gtr|guitar|std|ukule/
             self.tuning = :eadgbe
           when /dgdg|dgbd|slack|open/
             self.tuning = :dgdgbd
@@ -301,13 +195,15 @@ class Cosmography
             self.tuning = :dadgad
           when /fkbj|bjdn|dnfk|[mM]3/
             self.tuning = :fkbjdn
-          when /bead|eadg|enne|[pP]4/
-            self.tuning = :ennead
+          when /bas|bead|eadg|[pP]4/
+            self.tuning = :beadgcf
           else
             self.tuning = :unison
         end
+
         params.shift
       end
+
       params[0] ? puts(nil) : self.catalog
     else
       self.catalog
@@ -324,6 +220,7 @@ end # close cosmography
 
   if __FILE__ == $0 then
     instrum = Cosmography.new(:eadgbe)
+    instrum.scales[:z0] = '____ ' * 12
     instrum.entryway(ARGV)
   end
 
