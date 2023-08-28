@@ -30,6 +30,18 @@ Command-line
 
     ruby chordophone.rb cgdae j6 k5
 
+:
+
+    ruby chordophone.rb tonal
+
+:
+
+    ruby chordophone.rb group HgAu
+
+:
+
+    ruby chordophone.rb query 56
+
 ---
 
 ### Distribution

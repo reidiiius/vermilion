@@ -147,7 +147,7 @@ class Cosmography
 
   def headstock(sign)
     if (self.scales.key? sign) then
-      tune = @tuning
+      tune = self.tuning
       pegs = pitchfork(tune)
 
       cord = self.scales[sign]
@@ -163,24 +163,126 @@ class Cosmography
   end
 
 
-  def catalog
-    clefs = self.scales.keys.sort
+  def tabulate(star, pads="\t")
     cycle = 0
+    colum = 7
 
     puts
-    clefs.each do |sign|
-      print "\t", sign
+    star.each do |item|
       cycle += 1
-      if cycle % 7 == 0 then
+      print pads, item
+      if cycle % colum == 0 then
         print "\n"
       end
     end
-    puts 
+    print (cycle % colum != 0) ? "\n\n" : "\n"
+  end
+
+
+  def refinery
+    ores = []
+    mill = []
+    numb = 0
+
+    self.scales.each_value { |rock| ores.push(rock) }
+
+    ores.each { |rock| mill.push(rock.split) }
+
+    ores = mill.flatten
+    mill.clear
+
+    ores.uniq!
+    ores.sort!
+    ores.pop
+
+    self.tabulate ores, "\x20\x20"
+  end
+
+
+  def periodic(rock)
+    veins = []
+
+    @scales.each_pair { |clef, wire|
+      if wire.include? rock then
+        veins.push(clef)
+      end
+    }
+
+    if veins.empty? then
+      puts "\n  #{rock} ?\n"
+      self.refinery
+    else
+      self.tabulate veins
+    end
+  end
+
+
+  def similar(spat)
+    clefs = self.scales.keys.sort
+    kinds = []
+
+    clefs.each { |sign|
+      if /#{spat}/.match sign then
+        kinds.push sign
+      end
+    }
+
+    if kinds.empty? then
+      puts "\n\t#{spat} ?\n"
+
+      self.tabulate clefs
+    else
+      self.tabulate kinds
+    end
+  end
+
+
+  def catalog
+    clefs = self.scales.keys.sort
+
+    self.tabulate clefs
   end
 
 
   def entryway(params)
-    if params.count > 0 then
+    if params.length > 0 then
+
+      if params.length > self.scales.length then
+        puts "\n\tRequest denied!\n\n"
+        return nil
+      else
+        params.reject! { |argot| argot.length > 16 }
+      end
+
+      if params.include?('group') then
+        spot = params.index('group') + 1
+
+        if params.length > spot then
+          self.periodic params[-1]
+        else
+          self.refinery
+        end
+
+        return nil
+      end
+
+      if params.include?('query') then
+        spot = params.index('query') + 1
+
+        if params.length > spot then
+          self.similar params[-1]
+        else
+          self.catalog
+        end
+
+        return nil
+      end
+
+      if params.include?('tonal') then
+        self.refinery
+        return nil
+      end
+
       if /\A[^jknz].+\Z/.match params[0] then
         case params[0]
           when /cello|gda|mand|[pP]5|viol/
