@@ -8,18 +8,6 @@ class Cosmography
   def initialize(tuning = :unison)
     @tuning = tuning
 
-    @gears = {
-      :Bj => 50,
-      :Fn => 25,
-      :Cn =>  0,
-      :Gn => 35,
-      :Dn => 10,
-      :An => 45,
-      :En => 20,
-      :Bn => 55,
-      :Fk => 30
-    }
-
     @scales = {
       :j2 => 'HgHg PuFe ____ ____ CuNp PbAu ____ AuPb ____ AgUr ____ FePu ',
       :j3 => 'HgSn ____ SnHg UrFe ____ PbAg ____ AuAu ____ AgPb ____ FeUr ',
@@ -104,6 +92,18 @@ class Cosmography
  :j3k56x4 => 'HgTi ____ SnNp UrAu ____ ____ ____ AuUr NpSn ____ TiHg FeFe ',
  :k1j56y7 => '____ AuUr NpSn ____ TiHg FeFe HgTi ____ SnNp UrAu ____ ____ ',
  :k2j56y7 => 'NpCu ____ ____ FePu HgHg PuFe SnTi ____ CuNp PbAu ____ ____ '}
+
+    @gears = {
+      :Bj => 50,
+      :Fn => 25,
+      :Cn =>  0,
+      :Gn => 35,
+      :Dn => 10,
+      :An => 45,
+      :En => 20,
+      :Bn => 55,
+      :Fk => 30
+    }
   end
 
 
@@ -202,7 +202,7 @@ class Cosmography
   def periodic(rock)
     veins = []
 
-    @scales.each_pair { |clef, wire|
+    self.scales.each_pair { |clef, wire|
       if wire.include? rock then
         veins.push(clef)
       end
@@ -285,20 +285,20 @@ class Cosmography
 
       if /\A[^jknz].+\Z/.match params[0] then
         case params[0]
-          when /cello|gda|mand|[pP]5|viol/
-            self.tuning = :cgdae
+          when /bas|beadg|eadgc|[pP]4/
+            self.tuning = :beadgcf
           when /^([aA]4|b5|bf|fb|tri)/
             self.tuning = :bfbfb
-          when /dgbe|gtr|guitar|std|ukule/
-            self.tuning = :eadgbe
-          when /dgdg|dgbd|slack|open/
-            self.tuning = :dgdgbd
+          when /cello|gda|mand|[pP]5|viol/
+            self.tuning = :cgdae
           when /dadg|dgad|celt/
             self.tuning = :dadgad
+          when /dgdg|dgbd|open|slack|taro/
+            self.tuning = :dgdgbd
+          when /dgbe|gtr|guitar|std|uk[ue]/
+            self.tuning = :eadgbe
           when /fkbj|bjdn|dnfk|[mM]3/
             self.tuning = :fkbjdn
-          when /bas|bead|eadg|[pP]4/
-            self.tuning = :beadgcf
           else
             self.tuning = :unison
         end
