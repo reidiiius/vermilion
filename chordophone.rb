@@ -3,7 +3,7 @@
 module Chordophone
 
 class Cosmography
-  attr_accessor :gears, :scales, :tuning
+  attr_accessor :gears, :scales, :stocks, :tuning
 
   def initialize(tuning = :unison)
     @tuning = tuning
@@ -104,6 +104,17 @@ class Cosmography
       :Bn => 55,
       :Fk => 30
     }
+
+    @stocks = {
+      :beadgcf => [:Fn, :Cn, :Gn, :Dn, :An, :En, :Bn],
+      :bfbfb   => [:Bn, :Fn, :Bn, :Fn, :Bn],
+      :cgdae   => [:Cn, :Gn, :Dn, :An, :En].reverse,
+      :dadgad  => [:Dn, :An, :Gn, :Dn, :An, :Dn],
+      :dgdgbd  => [:Dn, :Bn, :Gn, :Dn, :Gn, :Dn],
+      :eadgbe  => [:En, :Bn, :Gn, :Dn, :An, :En],
+      :fkbjdn  => [:Dn, :Bj, :Fk, :Dn, :Bj, :Fk],
+      :unison  => [:Cn]
+    }
   end
 
 
@@ -123,32 +134,10 @@ class Cosmography
   end
 
 
-  def pitchfork(tune)
-    case tune
-      when :bfbfb
-        pegs = [:Bn, :Fn, :Bn, :Fn, :Bn]
-      when :cgdae
-        pegs = [:Cn, :Gn, :Dn, :An, :En].reverse
-      when :dadgad
-        pegs = [:Dn, :An, :Gn, :Dn, :An, :Dn]
-      when :dgdgbd
-        pegs = [:Dn, :Bn, :Gn, :Dn, :Gn, :Dn]
-      when :eadgbe
-        pegs = [:En, :Bn, :Gn, :Dn, :An, :En]
-      when :beadgcf
-        pegs = [:Fn, :Cn, :Gn, :Dn, :An, :En, :Bn]
-      when :fkbjdn
-        pegs = [:Dn, :Bj, :Fk, :Dn, :Bj, :Fk]
-      else
-        pegs = [:Cn]
-    end
-  end
-
-
-  def headstock(sign)
+  def compose(sign)
     if (self.scales.key? sign) then
       tune = self.tuning
-      pegs = pitchfork(tune)
+      pegs = self.stocks[tune]
 
       cord = self.scales[sign]
       board = self.lattice(cord, pegs)
@@ -180,11 +169,8 @@ class Cosmography
 
 
   def refinery
-    ores = []
+    ores = self.scales.values
     mill = []
-    numb = 0
-
-    self.scales.each_value { |rock| ores.push(rock) }
 
     ores.each { |rock| mill.push(rock.split) }
 
@@ -199,7 +185,7 @@ class Cosmography
   end
 
 
-  def periodic(rock)
+  def excavate(rock)
     veins = []
 
     self.scales.each_pair { |clef, wire|
@@ -239,6 +225,13 @@ class Cosmography
 
   def catalog
     clefs = self.scales.keys.sort
+    tuned = self.stocks.keys.sort
+
+    puts
+    tuned.each do |stock|
+      print "\x20\x20" << stock.to_s
+    end
+    puts
 
     self.tabulate clefs
   end
@@ -258,7 +251,7 @@ class Cosmography
         spot = params.index('group') + 1
 
         if params.length > spot then
-          self.periodic params[-1]
+          self.excavate params[-1]
         else
           self.refinery
         end
@@ -285,11 +278,11 @@ class Cosmography
 
       if /\A[^jknz].+\Z/.match params[0] then
         case params[0]
-          when /bas|beadg|eadgc|[pP]4/
+          when /bas|beadg|eadgc|p4/
             self.tuning = :beadgcf
-          when /^([aA]4|b5|bf|fb|tri)/
+          when /^(a4|b5|bf|fb|tri)/
             self.tuning = :bfbfb
-          when /cello|gda|mand|[pP]5|viol/
+          when /cello|gda|mand|p5|viol/
             self.tuning = :cgdae
           when /dadg|dgad|celt/
             self.tuning = :dadgad
@@ -297,7 +290,7 @@ class Cosmography
             self.tuning = :dgdgbd
           when /dgbe|gtr|guitar|std|uk[ue]/
             self.tuning = :eadgbe
-          when /fkbj|bjdn|dnfk|[mM]3/
+          when /fkbj|bjdn|dnfk|m3/
             self.tuning = :fkbjdn
           else
             self.tuning = :unison
@@ -312,7 +305,7 @@ class Cosmography
     end
 
     params.each do |argot|
-      self.headstock argot.to_sym
+      self.compose argot.to_sym
       puts
     end
   end
@@ -322,7 +315,7 @@ end # close cosmography
 
   if __FILE__ == $0 then
     instrum = Cosmography.new(:eadgbe)
-    instrum.scales[:z0] = '____ ' * 12
+    instrum.scales.store(:z0, '____ ' * 12)
     instrum.entryway(ARGV)
   end
 
