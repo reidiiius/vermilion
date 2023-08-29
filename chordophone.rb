@@ -152,6 +152,17 @@ class Cosmography
   end
 
 
+  def entirety
+    clefs = self.scales.keys.sort
+
+    puts
+    clefs.each do |sign|
+      self.compose sign
+      puts
+    end
+  end
+
+
   def tabulate(star, pads="\t")
     cycle = 0
     colum = 7
@@ -241,10 +252,35 @@ class Cosmography
     if params.length > 0 then
 
       if params.length > self.scales.length then
-        puts "\n\tRequest denied!\n\n"
+        puts 'Request denied'
         return nil
       else
-        params.reject! { |argot| argot.length > 16 }
+        params.reject! do |argot|
+          argot.length > 16
+        end
+
+        if params.empty? then
+          self.catalog
+          return nil
+        end
+      end
+
+      tunes = self.stocks.keys
+
+      if tunes.include? params[0].to_sym then
+        self.tuning = params[0].to_sym
+
+        params.shift
+
+        if params.empty? then
+          self.catalog
+          return nil
+        end
+      end
+
+      if params.include?('gamut') then
+        self.entirety
+        return nil
       end
 
       if params.include?('group') then
@@ -276,34 +312,12 @@ class Cosmography
         return nil
       end
 
-      if /\A[^jknz].+\Z/.match params[0] then
-        case params[0]
-          when /bas|beadg|eadgc|p4/
-            self.tuning = :beadgcf
-          when /^(a4|b5|bf|fb|tri)/
-            self.tuning = :bfbfb
-          when /cello|gda|mand|p5|viol/
-            self.tuning = :cgdae
-          when /dadg|dgad|celt/
-            self.tuning = :dadgad
-          when /dgdg|dgbd|open|slack|taro/
-            self.tuning = :dgdgbd
-          when /dgbe|gtr|guitar|std|uk[ue]/
-            self.tuning = :eadgbe
-          when /fkbj|bjdn|dnfk|m3/
-            self.tuning = :fkbjdn
-          else
-            self.tuning = :unison
-        end
-
-        params.shift
-      end
-
-      params[0] ? puts(nil) : self.catalog
     else
       self.catalog
+      return nil
     end
 
+    puts
     params.each do |argot|
       self.compose argot.to_sym
       puts

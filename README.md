@@ -42,6 +42,10 @@ Command-line
 
     ruby chordophone.rb query 56
 
+:
+
+    ruby chordophone.rb gamut | sensible-pager
+
 ---
 
 ### Distribution
