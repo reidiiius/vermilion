@@ -20,7 +20,7 @@ class Cosmography
   #
   # tuning - symbol that designates instrument tuning
   #
-  # Examples
+  # Example
   #
   #   o = Chordophone::Cosmography.new(:cgdae)
 
@@ -139,21 +139,23 @@ class Cosmography
 
   # Public: permute given string with given range
   #
-  # cord - string to process
+  # cord - string to permute
   #
   # numb - integer for range
   #
-  # Examples
+  # Example
   #
   #   cord = o.scales[:n0]
   #   numb = o.gears[:Gn]
   #
   #   puts o.machine(cord, numb)
   #
-  # returns a new string
+  # returns new string
 
-  def machine(cord, numb)
-    cord[numb, 60] << cord[ 0, numb]
+  def machine(cord=(?- * 60), numb=0)
+    yarn = cord[numb, 60] << cord[ 0, numb]
+
+    return yarn
   end
 
 
@@ -163,23 +165,29 @@ class Cosmography
   #
   # pegs - array of pitch symbols
   #
-  # Examples
+  # Example
   #
   #   cord = o.scales[:n0]
   #   pegs = o.stocks[:cgdae]
   #
   #   puts o.lattice(cord, pegs)
   #
-  # returns a new string
+  # returns new string
 
-  def lattice(cord, pegs)
-    crows = pegs.map { |pitch|
-      self.machine(cord, self.gears[pitch])
-    }
+  def lattice(cord=nil, pegs=nil)
+    grid = String.new
 
-    layout = "\t%s\n" * crows.length
+    if cord && pegs then
+      beams = pegs.map { |pitch|
+        self.machine(cord, self.gears[pitch])
+      }
 
-    layout % crows
+      truss = "\t%s\n" * beams.count
+
+      grid = truss % beams
+    end
+
+    return grid
   end
 
 
@@ -187,7 +195,7 @@ class Cosmography
   #
   # sign - symbol key of scales
   #
-  # Examples
+  # Example
   #
   #   sign = :n0
   #
@@ -195,27 +203,31 @@ class Cosmography
   #
   # returns nil
 
-  def compose(sign=:empty)
-    if (self.scales.key? sign) then
-      tune = self.tuning
-      pegs = self.stocks[tune]
+  def compose(sign=nil)
+    if sign then
+      if (self.scales.key? sign) then
+        tune = self.tuning
+        pegs = self.stocks[tune]
 
-      cord = self.scales[sign]
-      board = self.lattice(cord, pegs)
+        cord = self.scales[sign]
+        grid = self.lattice(cord, pegs)
 
-      epoch = "%.3f" % Time.now.to_f
+        tock = "%.3f" % Time.now.to_f
 
-      puts "\t#{sign}-#{tune}-i#{epoch}"
-      puts board
-    else
-      puts "\t#{sign} ?"
+        puts "\t#{sign}-#{tune}-i#{tock}"
+        puts grid
+      else
+        puts "\t#{sign} ?"
+      end
     end
+
+    return nil
   end
 
 
   # Public: print all tables
   #
-  # Examples
+  # Example
   #
   #   o.entirety
   #
@@ -236,27 +248,27 @@ class Cosmography
 
   # Public: print array elements tabulated
   #
-  # star - symbol array of keys
+  # arcs - array of printable data
   #
   # pads - padding string (optional)
   #
-  # Examples
+  # Example
   #
-  #   star = o.scales.keys.sort
+  #   arcs = o.scales.keys.sort
   #
   #   pads = "\t"
   #
-  #   o.tabulate(star, pads)
+  #   o.tabulate(arcs, pads)
   #
   # returns nil
 
-  def tabulate(star=[], pads="\t")
-    unless star.empty? then
+  def tabulate(arcs=[], pads="\t")
+    unless arcs.empty? then
       cycle = 0
       colum = 7
 
       puts
-      star.each do |item|
+      arcs.each do |item|
         cycle += 1
         print pads, item
         if cycle % colum == 0 then
@@ -265,12 +277,14 @@ class Cosmography
       end
       print (cycle % colum != 0) ? "\n\n" : "\n"
     end
+
+    return nil
   end
 
 
   # Public: print tonalities tabulated
   #
-  # Examples
+  # Example
   #
   #   o.refinery
   #
@@ -290,6 +304,8 @@ class Cosmography
     ores.pop
 
     self.tabulate ores, "\s\s"
+
+    return nil
   end
 
 
@@ -297,7 +313,7 @@ class Cosmography
   #
   # rock - tonality string
   #
-  # Examples
+  # Example
   #
   #   rock = 'AuHg'
   #
@@ -305,23 +321,27 @@ class Cosmography
   #
   # returns nil
 
-  def excavate(rock=?\b)
-    veins = []
+  def excavate(rock=nil)
+    if rock then
+      veins = []
 
-    self.scales.each_pair { |clef, wire|
-      if wire.include? rock then
-        veins.push(clef)
+      self.scales.each_pair { |clef, wire|
+        if wire.include? rock then
+          veins.push(clef)
+        end
+      }
+
+      if veins.empty? then
+        puts "\n  #{rock} ?\n"
+        self.refinery
+      else
+        veins.sort!
+
+        self.tabulate veins
       end
-    }
-
-    if veins.empty? then
-      puts "\n  #{rock} ?\n"
-      self.refinery
-    else
-      veins.sort!
-
-      self.tabulate veins
     end
+
+    return nil
   end
 
 
@@ -329,7 +349,7 @@ class Cosmography
   #
   # spat - pattern string
   #
-  # Examples
+  # Example
   #
   #   spat = '56'
   #
@@ -337,29 +357,33 @@ class Cosmography
   #
   # returns nil
 
-  def similar(spat=?\b)
-    clefs = self.scales.keys.sort
-    kinds = []
+  def similar(spat=nil)
+    if spat then
+      clefs = self.scales.keys.sort
+      kinds = []
 
-    clefs.each { |sign|
-      if /#{spat}/.match sign then
-        kinds.push sign
+      clefs.each { |sign|
+        if /#{spat}/.match sign then
+          kinds.push sign
+        end
+      }
+
+      if kinds.empty? then
+        puts "\n\t#{spat} ?\n"
+
+        self.tabulate clefs
+      else
+        self.tabulate kinds
       end
-    }
-
-    if kinds.empty? then
-      puts "\n\t#{spat} ?\n"
-
-      self.tabulate clefs
-    else
-      self.tabulate kinds
     end
+
+    return nil
   end
 
 
   # Public: print keys of stocks and scales tabulated
   #
-  # Examples
+  # Example
   #
   #   o.catalog
   #
@@ -376,6 +400,8 @@ class Cosmography
     puts
 
     self.tabulate clefs
+
+    return nil
   end
 
 
@@ -383,7 +409,7 @@ class Cosmography
   #
   # params - array of argument strings
   #
-  # Examples
+  # Example
   #
   #   params = ['group', 'AuHg']
   #
@@ -391,7 +417,7 @@ class Cosmography
   #
   # returns nil
 
-  def vestibule(params=[?\b])
+  def vestibule(params=[self.tuning])
     tunes = self.stocks.keys
 
     if tunes.include? params[0].to_sym then
@@ -441,7 +467,7 @@ class Cosmography
   #
   # params - array of argument strings
   #
-  # Examples
+  # Example
   #
   #   params = ['cgdae', 'n0', 'j3']
   #
