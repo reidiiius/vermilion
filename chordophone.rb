@@ -1,12 +1,54 @@
 #! /usr/bin/env ruby
 
+# String instrument
 module Chordophone
 
+# Tonality monograph
 class Cosmography
+
+  # Public: get and set instance variable
   attr_accessor :gears, :scales, :stocks, :tuning
+
+
+  # Public: initialize instrument
+  #
+  # gears  - pitch symbols mapped to range integers
+  #
+  # scales - signature symbols mapped to metallic strings
+  #
+  # stocks - tuning symbols mapped to pitch symbol arrays
+  #
+  # tuning - symbol that designates instrument tuning
+  #
+  # Examples
+  #
+  #   o = Chordophone::Cosmography.new(:cgdae)
 
   def initialize(tuning = :unison)
     @tuning = tuning
+
+    @gears = {
+      :Bj => 50,
+      :Fn => 25,
+      :Cn =>  0,
+      :Gn => 35,
+      :Dn => 10,
+      :An => 45,
+      :En => 20,
+      :Bn => 55,
+      :Fk => 30
+    }
+
+    @stocks = {
+      :beadgcf => [:Fn, :Cn, :Gn, :Dn, :An, :En, :Bn],
+      :bfbfb   => [:Bn, :Fn, :Bn, :Fn, :Bn],
+      :cgdae   => [:Cn, :Gn, :Dn, :An, :En].reverse,
+      :dadgad  => [:Dn, :An, :Gn, :Dn, :An, :Dn],
+      :dgdgbd  => [:Dn, :Bn, :Gn, :Dn, :Gn, :Dn],
+      :eadgbe  => [:En, :Bn, :Gn, :Dn, :An, :En],
+      :fkbjdn  => [:Dn, :Bj, :Fk, :Dn, :Bj, :Fk],
+      :unison  => [:Cn]
+    }
 
     @scales = {
       :j2 => 'HgHg PuFe ____ ____ CuNp PbAu ____ AuPb ____ AgUr ____ FePu ',
@@ -92,36 +134,43 @@ class Cosmography
  :j3k56x4 => 'HgTi ____ SnNp UrAu ____ ____ ____ AuUr NpSn ____ TiHg FeFe ',
  :k1j56y7 => '____ AuUr NpSn ____ TiHg FeFe HgTi ____ SnNp UrAu ____ ____ ',
  :k2j56y7 => 'NpCu ____ ____ FePu HgHg PuFe SnTi ____ CuNp PbAu ____ ____ '}
-
-    @gears = {
-      :Bj => 50,
-      :Fn => 25,
-      :Cn =>  0,
-      :Gn => 35,
-      :Dn => 10,
-      :An => 45,
-      :En => 20,
-      :Bn => 55,
-      :Fk => 30
-    }
-
-    @stocks = {
-      :beadgcf => [:Fn, :Cn, :Gn, :Dn, :An, :En, :Bn],
-      :bfbfb   => [:Bn, :Fn, :Bn, :Fn, :Bn],
-      :cgdae   => [:Cn, :Gn, :Dn, :An, :En].reverse,
-      :dadgad  => [:Dn, :An, :Gn, :Dn, :An, :Dn],
-      :dgdgbd  => [:Dn, :Bn, :Gn, :Dn, :Gn, :Dn],
-      :eadgbe  => [:En, :Bn, :Gn, :Dn, :An, :En],
-      :fkbjdn  => [:Dn, :Bj, :Fk, :Dn, :Bj, :Fk],
-      :unison  => [:Cn]
-    }
   end
 
 
-  def machine(str, ndx)
-    str[ndx, 60] << str[ 0, ndx]
+  # Public: permute given string with given range
+  #
+  # cord - string to process
+  #
+  # numb - integer for range
+  #
+  # Examples
+  #
+  #   cord = o.scales[:n0]
+  #   numb = o.gears[:Gn]
+  #
+  #   puts o.machine(cord, numb)
+  #
+  # returns a new string
+
+  def machine(cord, numb)
+    cord[numb, 60] << cord[ 0, numb]
   end
 
+
+  # Public: assemble table with given string and array
+  #
+  # cord - string to process
+  #
+  # pegs - array of pitch symbols
+  #
+  # Examples
+  #
+  #   cord = o.scales[:n0]
+  #   pegs = o.stocks[:cgdae]
+  #
+  #   puts o.lattice(cord, pegs)
+  #
+  # returns a new string
 
   def lattice(cord, pegs)
     crows = pegs.map { |pitch|
@@ -134,7 +183,19 @@ class Cosmography
   end
 
 
-  def compose(sign)
+  # Public: print table for given key
+  #
+  # sign - symbol key of scales
+  #
+  # Examples
+  #
+  #   sign = :n0
+  #
+  #   o.compose(sign)
+  #
+  # returns nil
+
+  def compose(sign=:empty)
     if (self.scales.key? sign) then
       tune = self.tuning
       pegs = self.stocks[tune]
@@ -152,6 +213,14 @@ class Cosmography
   end
 
 
+  # Public: print all tables
+  #
+  # Examples
+  #
+  #   o.entirety
+  #
+  # returns nil
+
   def entirety
     clefs = self.scales.keys.sort
 
@@ -160,24 +229,52 @@ class Cosmography
       self.compose sign
       puts
     end
+
+    return nil
   end
 
 
-  def tabulate(star, pads="\t")
-    cycle = 0
-    colum = 7
+  # Public: print array elements tabulated
+  #
+  # star - symbol array of keys
+  #
+  # pads - padding string (optional)
+  #
+  # Examples
+  #
+  #   star = o.scales.keys.sort
+  #
+  #   pads = "\t"
+  #
+  #   o.tabulate(star, pads)
+  #
+  # returns nil
 
-    puts
-    star.each do |item|
-      cycle += 1
-      print pads, item
-      if cycle % colum == 0 then
-        print "\n"
+  def tabulate(star=[], pads="\t")
+    unless star.empty? then
+      cycle = 0
+      colum = 7
+
+      puts
+      star.each do |item|
+        cycle += 1
+        print pads, item
+        if cycle % colum == 0 then
+          print "\n"
+        end
       end
+      print (cycle % colum != 0) ? "\n\n" : "\n"
     end
-    print (cycle % colum != 0) ? "\n\n" : "\n"
   end
 
+
+  # Public: print tonalities tabulated
+  #
+  # Examples
+  #
+  #   o.refinery
+  #
+  # returns nil
 
   def refinery
     ores = self.scales.values
@@ -192,11 +289,23 @@ class Cosmography
     ores.sort!
     ores.pop
 
-    self.tabulate ores, "\x20\x20"
+    self.tabulate ores, "\s\s"
   end
 
 
-  def excavate(rock)
+  # Public: search values of scales for given tonality string
+  #
+  # rock - tonality string
+  #
+  # Examples
+  #
+  #   rock = 'AuHg'
+  #
+  #   o.excavate rock
+  #
+  # returns nil
+
+  def excavate(rock=?\b)
     veins = []
 
     self.scales.each_pair { |clef, wire|
@@ -209,12 +318,26 @@ class Cosmography
       puts "\n  #{rock} ?\n"
       self.refinery
     else
+      veins.sort!
+
       self.tabulate veins
     end
   end
 
 
-  def similar(spat)
+  # Public: search keys of scales for given pattern string
+  #
+  # spat - pattern string
+  #
+  # Examples
+  #
+  #   spat = '56'
+  #
+  #   o.similar spat
+  #
+  # returns nil
+
+  def similar(spat=?\b)
     clefs = self.scales.keys.sort
     kinds = []
 
@@ -234,13 +357,21 @@ class Cosmography
   end
 
 
+  # Public: print keys of stocks and scales tabulated
+  #
+  # Examples
+  #
+  #   o.catalog
+  #
+  # returns nil
+
   def catalog
     clefs = self.scales.keys.sort
     tuned = self.stocks.keys.sort
 
     puts
     tuned.each do |stock|
-      print "\x20\x20" << stock.to_s
+      print "\s\s" << stock.to_s
     end
     puts
 
@@ -248,12 +379,81 @@ class Cosmography
   end
 
 
-  def entryway(params)
+  # Public: parse arguments for logical branching
+  #
+  # params - array of argument strings
+  #
+  # Examples
+  #
+  #   params = ['group', 'AuHg']
+  #
+  #   o.vestibule(params)
+  #
+  # returns nil
+
+  def vestibule(params=[?\b])
+    tunes = self.stocks.keys
+
+    if tunes.include? params[0].to_sym then
+      self.tuning = params[0].to_sym
+
+      params.shift
+
+      if params.empty? then
+        self.catalog
+        return nil
+      end
+    end
+
+    if params.include?('gamut') then
+      self.entirety
+    elsif params.include?('group') then
+      spot = params.index('group') + 1
+
+      if params.length > spot then
+        self.excavate params[-1]
+      else
+        self.refinery
+      end
+    elsif params.include?('query') then
+      spot = params.index('query') + 1
+
+      if params.length > spot then
+        self.similar params[-1]
+      else
+        self.catalog
+      end
+    elsif params.include?('tonal') then
+      self.refinery
+    else
+      puts
+      params.each do |argot|
+        self.compose argot.to_sym
+        puts
+      end
+    end
+
+    return nil
+  end
+
+
+  # Public: application entry point
+  #
+  # params - array of argument strings
+  #
+  # Examples
+  #
+  #   params = ['cgdae', 'n0', 'j3']
+  #
+  #   o.entryway(params)
+  #
+  # returns nil
+
+  def entryway(params=[])
     if params.length > 0 then
 
       if params.length > self.scales.length then
         puts 'Request denied'
-        return nil
       else
         params.reject! do |argot|
           argot.length > 16
@@ -261,67 +461,16 @@ class Cosmography
 
         if params.empty? then
           self.catalog
-          return nil
-        end
-      end
-
-      tunes = self.stocks.keys
-
-      if tunes.include? params[0].to_sym then
-        self.tuning = params[0].to_sym
-
-        params.shift
-
-        if params.empty? then
-          self.catalog
-          return nil
-        end
-      end
-
-      if params.include?('gamut') then
-        self.entirety
-        return nil
-      end
-
-      if params.include?('group') then
-        spot = params.index('group') + 1
-
-        if params.length > spot then
-          self.excavate params[-1]
         else
-          self.refinery
+          self.vestibule(params)
         end
-
-        return nil
-      end
-
-      if params.include?('query') then
-        spot = params.index('query') + 1
-
-        if params.length > spot then
-          self.similar params[-1]
-        else
-          self.catalog
-        end
-
-        return nil
-      end
-
-      if params.include?('tonal') then
-        self.refinery
-        return nil
       end
 
     else
       self.catalog
-      return nil
     end
 
-    puts
-    params.each do |argot|
-      self.compose argot.to_sym
-      puts
-    end
+    return nil
   end
 
 
