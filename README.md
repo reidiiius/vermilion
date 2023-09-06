@@ -16,35 +16,35 @@ Command-line
 
 :
 
-    ruby chordophone.rb
+    ruby lib/chordophone.rb
 
 :
 
-    ruby chordophone.rb n0
+    ruby lib/chordophone.rb n0
 
 :
 
-    ruby chordophone.rb j6 k5
+    ruby lib/chordophone.rb j6 k5
 
 :
 
-    ruby chordophone.rb cgdae j6 k5
+    ruby lib/chordophone.rb cgdae j6 k5
 
 :
 
-    ruby chordophone.rb tonal
+    ruby lib/chordophone.rb tonal
 
 :
 
-    ruby chordophone.rb group HgAu
+    ruby lib/chordophone.rb group HgAu
 
 :
 
-    ruby chordophone.rb query 56
+    ruby lib/chordophone.rb query 56
 
 :
 
-    ruby chordophone.rb gamut | sensible-pager
+    ruby lib/chordophone.rb gamut | sensible-pager
 
 ---
 

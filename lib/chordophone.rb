@@ -213,8 +213,9 @@ class Cosmography
         grid = self.lattice(cord, pegs)
 
         tock = "%.3f" % Time.now.to_f
+        brim = format("\t%s-%s-i%s", sign, tune, tock)
 
-        puts "\t#{sign}-#{tune}-i#{tock}"
+        puts brim
         puts grid
       else
         puts "\t#{sign} ?"
@@ -363,7 +364,7 @@ class Cosmography
       kinds = []
 
       clefs.each { |sign|
-        if /#{spat}/.match sign then
+        if sign.to_s.include? spat then
           kinds.push sign
         end
       }
