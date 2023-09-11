@@ -33,7 +33,7 @@ class Cosmography
     @tuning = tuning
 
     @keyed = /\A
-      (?:[i-nz]{1}[0-7]{1,3}){1,2}
+      (?:[ijknz]{1}[0-7]{1,3}){1,2}
       (?:[lmwx]{1}[1-7]{1,2})?
       (?:[hi]{,3})?
     \Z/ix

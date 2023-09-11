@@ -123,8 +123,8 @@ class Epitome
 
   def keyed_value_type_regexp
     name = __method__
-    hold = self.cosmo.keyed
-    bool = hold.instance_of? Regexp
+    rexp = self.cosmo.keyed
+    bool = rexp.instance_of? Regexp
   rescue => anomaly
     self.report(name, anomaly)
   else
