@@ -119,6 +119,37 @@ class Epitome
   end
 
 
+  # attribute: keyed
+
+  def keyed_value_type_regexp
+    name = __method__
+    hold = self.cosmo.keyed
+    bool = hold.instance_of? Regexp
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # attribute: keyed
+
+  def keyed_match_keys_scales
+    name = __method__
+    rexp = self.cosmo.keyed
+    hold = self.cosmo.scales.keys
+    bool = hold.all? { |sign| rexp.match? sign }
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
   # attribute: gears
 
   def gears_value_type_hash
@@ -609,9 +640,12 @@ class Epitome
   def casework
     name = __method__
     self.tasks = [
+      -> { entirety_return_type_nil },
       -> { tuning_value_not_nil },
       -> { tuning_value_type_symbol },
       -> { tuning_value_member_stocks },
+      -> { keyed_value_type_regexp },
+      -> { keyed_match_keys_scales },
       -> { gears_value_type_hash },
       -> { gears_member_values_integer },
       -> { stocks_value_type_hash },
@@ -642,7 +676,6 @@ class Epitome
       -> { entryway_without_argument },
       -> { entryway_argument_mistake },
       -> { entryway_argument_correct },
-      -> { entirety_return_type_nil },
     ]
   rescue => anomaly
     self.report(name, anomaly)
@@ -661,7 +694,7 @@ class Epitome
     sleep 1
 
     unless self.tasks.empty? then
-      stack = self.tasks.reverse
+      stack = self.tasks
 
       stack.each do |job|
         sleep 1

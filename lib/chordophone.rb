@@ -6,6 +6,9 @@ module Chordophone
 # Tonality monograph
 class Cosmography
 
+  # Public: get instance variable
+  attr_reader :keyed
+
   # Public: get and set instance variable
   attr_accessor :gears, :scales, :stocks, :tuning
 
@@ -13,6 +16,8 @@ class Cosmography
   # Public: initialize instrument
   #
   # gears  - pitch symbols mapped to range integers
+  #
+  # keyed - regexp pattern of signature accidentals
   #
   # scales - signature symbols mapped to metallic strings
   #
@@ -26,6 +31,12 @@ class Cosmography
 
   def initialize(tuning = :unison)
     @tuning = tuning
+
+    @keyed = /\A
+      (?:[i-nz]{1}[0-7]{1,3}){1,2}
+      (?:[lmwx]{1}[1-7]{1,2})?
+      (?:[hi]{,3})?
+    \Z/ix
 
     @gears = {
       :Bj => 50,
@@ -455,8 +466,12 @@ class Cosmography
     else
       puts
       params.each do |argot|
-        self.compose argot.to_sym
-        puts
+        if self.keyed.match? argot then
+          self.compose argot.to_sym
+          puts
+        else
+          puts "\t#{argot} ?\n\n"
+        end
       end
     end
 
