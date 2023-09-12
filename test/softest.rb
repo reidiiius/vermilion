@@ -323,6 +323,21 @@ class Epitome
   end
 
 
+  # method: epochal
+
+  def epochal_return_type_string
+    name = __method__
+    hold = self.cosmo.epochal
+    bool = hold.instance_of? String
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
   # method: compose
 
   def compose_without_argument
@@ -657,6 +672,7 @@ class Epitome
       -> { machine_return_value_length },
       -> { machine_return_value_match },
       -> { lattice_return_type_string },
+      -> { epochal_return_type_string },
       -> { compose_without_argument },
       -> { compose_argument_mistake },
       -> { compose_argument_correct },

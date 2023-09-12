@@ -202,6 +202,23 @@ class Cosmography
   end
 
 
+  # Public: generate and return serial stamp
+  #
+  # Example
+  #
+  #   o.epochal
+  #
+  # returns string
+
+  def epochal
+    epoch = "i%d" % Time.now.to_i
+    crypt = rand(999999999).to_s(16)
+    stamp = sprintf("%s-%s", epoch, crypt)
+
+    return stamp
+  end
+
+
   # Public: print table for given key
   #
   # sign - symbol key of scales
@@ -214,7 +231,7 @@ class Cosmography
   #
   # returns nil
 
-  def compose(sign=nil)
+  def compose(sign=nil, seal=nil)
     if sign then
       if (self.scales.key? sign) then
         tune = self.tuning
@@ -223,11 +240,10 @@ class Cosmography
         cord = self.scales[sign]
         grid = self.lattice(cord, pegs)
 
-        tock = "%.3f" % Time.now.to_f
-        brim = format("\t%s-%s-i%s", sign, tune, tock)
+        seal = self.epochal unless seal
+        brim = format("\t%s-%s-%s", sign, tune, seal)
 
-        puts brim
-        puts grid
+        puts(brim, grid)
       else
         puts "\t#{sign} ?"
       end
@@ -247,10 +263,11 @@ class Cosmography
 
   def entirety
     clefs = self.scales.keys.sort
+    stamp = self.epochal
 
     puts
     clefs.each do |sign|
-      self.compose sign
+      self.compose(sign, stamp)
       puts
     end
 
@@ -464,10 +481,12 @@ class Cosmography
     elsif params.include?('tonal') then
       self.refinery
     else
+      stamp = self.epochal
+
       puts
       params.each do |argot|
         if self.keyed.match? argot then
-          self.compose argot.to_sym
+          self.compose(argot.to_sym, stamp)
           puts
         else
           puts "\t#{argot} ?\n\n"
