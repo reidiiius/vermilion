@@ -17,7 +17,7 @@ class Cosmography
   #
   # gears  - pitch symbols mapped to range integers
   #
-  # keyed - regexp pattern of signature accidentals
+  # keyed  - regexp pattern of signature accidentals
   #
   # scales - signature symbols mapped to metallic strings
   #
@@ -202,11 +202,13 @@ class Cosmography
   end
 
 
-  # Public: generate and return serial stamp
+  # Public: generate and return sequential string
   #
   # Example
   #
-  #   o.epochal
+  #   seal = o.epochal
+  #
+  #   puts seal
   #
   # returns string
 
@@ -223,11 +225,15 @@ class Cosmography
   #
   # sign - symbol key of scales
   #
+  # seal - sequential string
+  #
   # Example
   #
   #   sign = :n0
   #
-  #   o.compose(sign)
+  #   seal = o.epochal
+  #
+  #   o.compose(sign, seal)
   #
   # returns nil
 
