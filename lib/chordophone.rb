@@ -357,7 +357,9 @@ class Cosmography
   # returns nil
 
   def excavate(rock=nil)
-    if rock then
+    alloy = /\A(?:[A-Z][a-z]){2}\Z/
+
+    if alloy.match? rock then
       veins = []
 
       self.scales.each_pair { |clef, wire|
@@ -374,6 +376,9 @@ class Cosmography
 
         self.tabulate veins
       end
+    else
+      puts "\n  #{rock} ?\n"
+      self.refinery
     end
 
     return nil
@@ -393,8 +398,10 @@ class Cosmography
   # returns nil
 
   def similar(spat=nil)
-    if spat then
-      clefs = self.scales.keys.sort
+    clefs = self.scales.keys.sort
+    model = /\A\b(?:[i-nw-z]?[0-7]{,3}){,3}\Z/
+
+    if model.match? spat then
       kinds = []
 
       clefs.each { |sign|
@@ -410,6 +417,10 @@ class Cosmography
       else
         self.tabulate kinds
       end
+    else
+      puts "\n\t#{spat} ?\n"
+
+      self.tabulate clefs
     end
 
     return nil
