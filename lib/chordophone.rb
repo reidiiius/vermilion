@@ -223,13 +223,13 @@ class Cosmography
 
   # Public: print table for given key
   #
-  # sign - symbol key of scales
+  # sign - scales key string
   #
   # seal - sequential string
   #
   # Example
   #
-  #   sign = :n0
+  #   sign = 'n0'
   #
   #   seal = o.epochal
   #
@@ -239,17 +239,23 @@ class Cosmography
 
   def compose(sign=nil, seal=nil)
     if sign then
-      if (self.scales.key? sign) then
-        tune = self.tuning
-        pegs = self.stocks[tune]
+      if self.keyed.match? sign then
+        sign = sign.intern
 
-        cord = self.scales[sign]
-        grid = self.lattice(cord, pegs)
+        if self.scales.key? sign then
+          tune = self.tuning
+          pegs = self.stocks[tune]
 
-        seal = self.epochal unless seal
-        brim = format("\t%s-%s-%s", sign, tune, seal)
+          cord = self.scales[sign]
+          grid = self.lattice(cord, pegs)
 
-        puts(brim, grid)
+          seal = self.epochal() unless seal
+          brim = format("\t%s-%s-%s", sign, tune, seal)
+
+          puts(brim, grid)
+        else
+          puts "\t#{sign} ?"
+        end
       else
         puts "\t#{sign} ?"
       end
@@ -502,12 +508,8 @@ class Cosmography
 
       puts
       params.each do |argot|
-        if self.keyed.match? argot then
-          self.compose(argot.to_sym, stamp)
-          puts
-        else
-          puts "\t#{argot} ?\n\n"
-        end
+        self.compose(argot, stamp)
+        puts
       end
     end
 
