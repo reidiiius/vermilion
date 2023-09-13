@@ -167,6 +167,21 @@ class Epitome
 
   # attribute: gears
 
+  def gears_member_keys_symbol
+    name = __method__
+    hold = self.cosmo.gears.keys
+    bool = hold.all? { |item| item.kind_of? Symbol }
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # attribute: gears
+
   def gears_member_values_integer
     name = __method__
     hold = self.cosmo.gears.values
@@ -197,10 +212,56 @@ class Epitome
 
   # attribute: stocks
 
+  def stocks_member_keys_symbol
+    name = __method__
+    hold = self.cosmo.stocks.keys
+    bool = hold.all? { |item| item.kind_of? Symbol }
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # attribute: stocks
+
   def stocks_member_values_array
     name = __method__
     hold = self.cosmo.stocks.values
     bool = hold.all? { |item| item.kind_of? Array }
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # attribute: stocks
+
+  def stocks_value_element_symbol
+    name = __method__
+    hold = self.cosmo.stocks.values.flatten
+    bool = hold.all? { |item| item.kind_of? Symbol }
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # attribute: stocks
+
+  def stocks_element_member_gears
+    name = __method__
+    bank = self.cosmo.gears.keys
+    hold = self.cosmo.stocks.values.flatten
+    bool = hold.all? { |item| bank.include? item }
   rescue => anomaly
     self.report(name, anomaly)
   else
@@ -216,6 +277,21 @@ class Epitome
     name = __method__
     hold = self.cosmo.scales
     bool = hold.is_a? Hash
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # attribute: scales
+
+  def scales_member_keys_symbol
+    name = __method__
+    hold = self.cosmo.scales.keys
+    bool = hold.all? { |item| item.kind_of? Symbol }
   rescue => anomaly
     self.report(name, anomaly)
   else
@@ -357,7 +433,7 @@ class Epitome
 
   def compose_argument_mistake
     name = __method__
-    sign = :k9
+    sign = 'k9'
     hold = self.cosmo.compose sign
     bool = hold.instance_of? NilClass
   rescue => anomaly
@@ -373,8 +449,9 @@ class Epitome
 
   def compose_argument_correct
     name = __method__
-    sign = :n0
-    hold = self.cosmo.compose sign
+    sign = 'n0'
+    seal = self.cosmo.epochal
+    hold = self.cosmo.compose(sign, seal)
     bool = hold.instance_of? NilClass
   rescue => anomaly
     self.report(name, anomaly)
@@ -662,10 +739,15 @@ class Epitome
       -> { keyed_value_type_regexp },
       -> { keyed_match_keys_scales },
       -> { gears_value_type_hash },
+      -> { gears_member_keys_symbol },
       -> { gears_member_values_integer },
       -> { stocks_value_type_hash },
+      -> { stocks_member_keys_symbol },
       -> { stocks_member_values_array },
+      -> { stocks_value_element_symbol },
+      -> { stocks_element_member_gears },
       -> { scales_value_type_hash },
+      -> { scales_member_keys_symbol },
       -> { scales_member_values_string },
       -> { scales_member_values_length },
       -> { machine_return_type_string },
