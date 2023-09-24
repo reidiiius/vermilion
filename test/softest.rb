@@ -18,7 +18,7 @@ class Epitome
   # method: initialize
 
   def initialize
-    @cosmo = Chordophone::Cosmography.new
+    @cosmo = Chordophone::Cosmography.new(:unison, false)
     @stats = {
       :errors => 0,
       :failed => 0,
@@ -110,6 +110,21 @@ class Epitome
     pegs = self.cosmo.stocks.keys
     hold = self.cosmo.tuning
     bool = pegs.member? hold
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # attribute: toggle
+
+  def toggle_value_type_boolean
+    name = __method__
+    hold = self.cosmo.toggle
+    bool = (hold.is_a?(TrueClass) or hold.is_a?(FalseClass))
   rescue => anomaly
     self.report(name, anomaly)
   else
@@ -331,6 +346,38 @@ class Epitome
   end
 
 
+  # method: spindle
+
+  def spindle_return_type_string
+    name = __method__
+    hold = self.cosmo.spindle
+    bool = hold.is_a? String
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: spindle
+
+  def spindle_return_value_length
+    name = __method__
+    yarn = self.cosmo.scales.fetch(:n0)
+    hold = self.cosmo.spindle(yarn)
+    span = hold.length
+    bool = span.eql? 36
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
   # method: machine
 
   def machine_return_type_string
@@ -353,8 +400,9 @@ class Epitome
     cord = self.cosmo.scales.fetch(:n0)
     numb = self.cosmo.gears.fetch(:Gn)
     hold = self.cosmo.machine(cord, numb)
+    cars = self.cosmo.toggle ? 60 : 36
     span = hold.length
-    bool = span.eql? 60
+    bool = span.eql? cars
   rescue => anomaly
     self.report(name, anomaly)
   else
@@ -371,7 +419,9 @@ class Epitome
     cord = self.cosmo.scales.fetch(:n0)
     numb = self.cosmo.gears.fetch(:Gn)
     hold = self.cosmo.machine(cord, numb)
-    wire = 'AuAg ____ AgAu ____ FePb HgCu ____ SnSn ____ CuHg PbFe ____ '
+    wire = self.cosmo.toggle ?
+      'AuAg ____ AgAu ____ FePb HgCu ____ SnSn ____ CuHg PbFe ____ ' :
+      'us __ su __ qw vr __ tt __ rv wq __ '
     bool = hold.eql? wire
   rescue => anomaly
     self.report(name, anomaly)
@@ -559,7 +609,7 @@ class Epitome
 
   def excavate_argument_correct
     name = __method__
-    rock = 'AuHg'
+    rock = self.cosmo.toggle ? 'AuHg' : 'uv'
     hold = self.cosmo.excavate rock
     bool = hold.instance_of? NilClass
   rescue => anomaly
@@ -668,7 +718,8 @@ class Epitome
 
   def vestibule_argument_correct
     name = __method__
-    star = ['group', 'AuHg']
+    star = self.cosmo.toggle ?
+      ['group', 'AuHg'] : ['group', 'uv']
     hold = self.cosmo.vestibule star
     bool = hold.instance_of? NilClass
   rescue => anomaly
@@ -736,6 +787,7 @@ class Epitome
       -> { tuning_value_not_nil },
       -> { tuning_value_type_symbol },
       -> { tuning_value_member_stocks },
+      -> { toggle_value_type_boolean },
       -> { keyed_value_type_regexp },
       -> { keyed_match_keys_scales },
       -> { gears_value_type_hash },
@@ -750,6 +802,8 @@ class Epitome
       -> { scales_member_keys_symbol },
       -> { scales_member_values_string },
       -> { scales_member_values_length },
+      -> { spindle_return_type_string },
+      -> { spindle_return_value_length },
       -> { machine_return_type_string },
       -> { machine_return_value_length },
       -> { machine_return_value_match },

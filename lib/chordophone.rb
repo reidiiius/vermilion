@@ -10,7 +10,7 @@ class Cosmography
   attr_reader :keyed
 
   # Public: get and set instance variable
-  attr_accessor :gears, :scales, :stocks, :tuning
+  attr_accessor :gears, :scales, :stocks, :toggle, :tuning
 
 
   # Public: initialize instrument
@@ -19,18 +19,22 @@ class Cosmography
   #
   # keyed  - regexp pattern of signature accidentals
   #
-  # scales - signature symbols mapped to metallic strings
+  # scales - signature symbols mapped to tonal strings
   #
   # stocks - tuning symbols mapped to pitch symbol arrays
+  #
+  # toggle - boolean latch that designates tonal graphics
   #
   # tuning - symbol that designates instrument tuning
   #
   # Example
   #
-  #   o = Chordophone::Cosmography.new(:cgdae)
+  #   o = Chordophone::Cosmography.new(:cgdae, false)
 
-  def initialize(tuning = :unison)
+  def initialize(tuning = :unison, toggle = true)
     @tuning = tuning
+
+    @toggle = toggle
 
     @keyed = /\A
       (?:[ijknz]{1}[0-7]{1,3}){1,2}
@@ -148,6 +152,35 @@ class Cosmography
   end
 
 
+  # Public: transforms substrata of given string
+  #
+  # yarn - string to transform
+  #
+  # Example
+  #
+  #   yarn = o.scales[:n0]
+  #
+  #   puts o.spindle(yarn)
+  #
+  # returns new string
+
+  def spindle(yarn=(?- * 60))
+    wire = yarn.tr("\x5F", ?-)
+    ores = %w[Ti Mn Fe Cu Ag Sn Au Hg Pb Ur Np Pu]
+    jots = %w[ o  p  q  r  s  t  u  v  w  x  y  z]
+    numb = 0
+
+    while numb < ores.length do
+      wire = wire.gsub(ores[numb], jots[numb])
+      numb += 1
+    end
+
+    yarn = wire.gsub('--', ?\u{5F})
+
+    return yarn
+  end
+
+
   # Public: permute given string with given range
   #
   # cord - string to permute
@@ -165,6 +198,7 @@ class Cosmography
 
   def machine(cord=(?- * 60), numb=0)
     yarn = cord[numb, 60] << cord[ 0, numb]
+    yarn = self.spindle(yarn) unless self.toggle
 
     return yarn
   end
@@ -214,7 +248,7 @@ class Cosmography
 
   def epochal
     epoch = "i%d" % Time.now.to_i
-    crypt = rand(999999999).to_s(16)
+    crypt = rand(10_000_000).to_s(16)
     stamp = sprintf("%s-%s", epoch, crypt)
 
     return stamp
@@ -335,14 +369,18 @@ class Cosmography
     ores = self.scales.values
     mill = []
 
-    ores.each { |rock| mill.push(rock.split) }
+    ores.each do |rock|
+      rock = self.spindle(rock) unless self.toggle
+
+      mill.push(rock.split)
+    end
 
     ores = mill.flatten
     mill.clear
 
     ores.uniq!
     ores.sort!
-    ores.pop
+    self.toggle ? ores.pop : ores.shift
 
     self.tabulate ores, "\s\s"
 
@@ -363,12 +401,15 @@ class Cosmography
   # returns nil
 
   def excavate(rock=nil)
-    alloy = /\A(?:[A-Z][a-z]){2}\Z/
+    alloy = self.toggle ?
+      /\A(?:[A-Z][a-z]){2}\Z/ : /\A(?:[o-z]){2}\Z/
 
     if alloy.match? rock then
       veins = []
 
       self.scales.each_pair { |clef, wire|
+        wire = self.spindle(wire) unless self.toggle
+
         if wire.include? rock then
           veins.push(clef)
         end
@@ -557,7 +598,7 @@ class Cosmography
 end # close cosmography
 
   if __FILE__ == $0 then
-    instrum = Cosmography.new(:eadgbe)
+    instrum = Cosmography.new(:eadgbe, true)
     instrum.scales.store(:z0, '____ ' * 12)
     instrum.entryway(ARGV)
   end
