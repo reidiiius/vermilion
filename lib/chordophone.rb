@@ -500,55 +500,55 @@ class Cosmography
 
   # Public: parse arguments for logical branching
   #
-  # params - array of argument strings
+  # args - array of argument strings
   #
   # Example
   #
-  #   params = ['group', 'AuHg']
+  #   args = ['group', 'AuHg']
   #
-  #   o.vestibule(params)
+  #   o.vestibule(args)
   #
   # returns nil
 
-  def vestibule(params=[self.tuning])
+  def vestibule(args=[self.tuning])
     tunes = self.stocks.keys
 
-    if tunes.include? params[0].to_sym then
-      self.tuning = params[0].to_sym
+    if tunes.include? args[0].to_sym then
+      self.tuning = args[0].to_sym
 
-      params.shift
+      args.shift
 
-      if params.empty? then
+      if args.empty? then
         self.catalog
         return nil
       end
     end
 
-    if params.include?('gamut') then
+    if args.include?('gamut') then
       self.entirety
-    elsif params.include?('group') then
-      spot = params.index('group') + 1
+    elsif args.include?('group') then
+      spot = args.index('group') + 1
 
-      if params.length > spot then
-        self.excavate params[-1]
+      if args.length > spot then
+        self.excavate args[-1]
       else
         self.refinery
       end
-    elsif params.include?('query') then
-      spot = params.index('query') + 1
+    elsif args.include?('query') then
+      spot = args.index('query') + 1
 
-      if params.length > spot then
-        self.similar params[-1]
+      if args.length > spot then
+        self.similar args[-1]
       else
         self.catalog
       end
-    elsif params.include?('tonal') then
+    elsif args.include?('tonal') then
       self.refinery
     else
       stamp = self.epochal
 
       puts
-      params.each do |argot|
+      args.each do |argot|
         self.compose(argot, stamp)
         puts
       end
@@ -560,30 +560,30 @@ class Cosmography
 
   # Public: application entry point
   #
-  # params - array of argument strings
+  # args - array of argument strings
   #
   # Example
   #
-  #   params = ['cgdae', 'n0', 'j3']
+  #   args = ['cgdae', 'n0', 'j3']
   #
-  #   o.entryway(params)
+  #   o.entryway(args)
   #
   # returns nil
 
-  def entryway(params=[])
-    if params.length > 0 then
+  def entryway(args=[])
+    if args.length > 0 then
 
-      if params.length > self.scales.length then
+      if args.length > self.scales.length then
         puts 'Request denied'
       else
-        params.reject! do |argot|
+        args.reject! do |argot|
           argot.length > 16
         end
 
-        if params.empty? then
+        if args.empty? then
           self.catalog
         else
-          self.vestibule(params)
+          self.vestibule(args)
         end
       end
 
