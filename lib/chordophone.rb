@@ -47,6 +47,10 @@ class Cosmography
     \Z/ix
 
     @gears = {
+      :Gj => 30,
+      :Dj =>  5,
+      :Aj => 40,
+      :Ej => 15,
       :Bj => 50,
       :Fn => 25,
       :Cn =>  0,
@@ -55,13 +59,18 @@ class Cosmography
       :An => 45,
       :En => 20,
       :Bn => 55,
-      :Fk => 30
+      :Fk => 30,
+      :Ck =>  5,
+      :Gk => 40,
+      :Dk => 15,
+      :Ak => 50
     }
 
     @stocks = {
       :beadgcf => [:Fn, :Cn, :Gn, :Dn, :An, :En, :Bn],
       :bfbfb   => [:Bn, :Fn, :Bn, :Fn, :Bn],
-      :cgdae   => [:Cn, :Gn, :Dn, :An, :En].reverse,
+      :cgcgc   => [:Cn, :Gn, :Cn, :Gn, :Cn],
+      :cgdae   => [:En, :An, :Dn, :Gn, :Cn],
       :dadgad  => [:Dn, :An, :Gn, :Dn, :An, :Dn],
       :dgdgbd  => [:Dn, :Bn, :Gn, :Dn, :Gn, :Dn],
       :eadgbe  => [:En, :Bn, :Gn, :Dn, :An, :En],
@@ -218,7 +227,8 @@ class Cosmography
   # returns new string
 
   def machine(cord=(?- * 60), numb=0)
-    yarn = cord[numb, 60] << cord[ 0, numb]
+    jute = cord[numb, 60] << cord[ 0, numb]
+    yarn = jute.concat(jute[0, 4]) # octave
     yarn = self.spindle(yarn) unless self.toggle
 
     return yarn

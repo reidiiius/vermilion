@@ -460,7 +460,7 @@ class Epitome
     cord = self.cosmo.scales.fetch(:n0)
     numb = self.cosmo.gears.fetch(:Gn)
     hold = self.cosmo.machine(cord, numb)
-    cars = self.cosmo.toggle ? 60 : 36
+    cars = self.cosmo.toggle ? 64 : 38
     span = hold.length
     bool = span.eql? cars
   rescue => anomaly
@@ -480,8 +480,8 @@ class Epitome
     numb = self.cosmo.gears.fetch(:Gn)
     hold = self.cosmo.machine(cord, numb)
     wire = self.cosmo.toggle ?
-      'AuAg ____ AgAu ____ FePb HgCu ____ SnSn ____ CuHg PbFe ____ ' :
-      'us __ su __ qw vr __ tt __ rv wq __ '
+      'AuAg ____ AgAu ____ FePb HgCu ____ SnSn ____ CuHg PbFe ____ AuAg' :
+      'us __ su __ qw vr __ tt __ rv wq __ us'
     bool = hold.eql? wire
   rescue => anomaly
     self.report(name, anomaly)
