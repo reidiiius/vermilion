@@ -286,6 +286,66 @@ class Epitome
   end
 
 
+  # attribute: decors
+
+  def decors_value_type_array
+    name = __method__
+    hold = self.cosmo.decors
+    bool = hold.instance_of? Array
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # attribute: decors
+
+  def decors_members_type_integer
+    name = __method__
+    hold = self.cosmo.decors
+    bool = hold.all? { |item| item.is_a? Integer }
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # attribute: metals
+
+  def metals_value_type_array
+    name = __method__
+    hold = self.cosmo.metals
+    bool = hold.instance_of? Array
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # attribute: metals
+
+  def metals_members_type_symbol
+    name = __method__
+    hold = self.cosmo.metals
+    bool = hold.all? { |item| item.is_a? Symbol }
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
   # attribute: scales
 
   def scales_value_type_hash
@@ -593,7 +653,7 @@ class Epitome
 
   def excavate_argument_mistake
     name = __method__
-    rock = 'ZeTa'
+    rock = self.cosmo.toggle ? 'ZeTa' : 'om'
     hold = self.cosmo.excavate rock
     bool = hold.instance_of? NilClass
   rescue => anomaly
@@ -798,6 +858,10 @@ class Epitome
       -> { stocks_member_values_array },
       -> { stocks_value_element_symbol },
       -> { stocks_element_member_gears },
+      -> { decors_value_type_array },
+      -> { decors_members_type_integer },
+      -> { metals_value_type_array },
+      -> { metals_members_type_symbol },
       -> { scales_value_type_hash },
       -> { scales_member_keys_symbol },
       -> { scales_member_values_string },

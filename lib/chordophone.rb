@@ -7,7 +7,7 @@ module Chordophone
 class Cosmography
 
   # Public: get instance variable
-  attr_reader :keyed
+  attr_reader :decors, :keyed, :metals
 
   # Public: get and set instance variable
   attr_accessor :gears, :scales, :stocks, :toggle, :tuning
@@ -15,9 +15,13 @@ class Cosmography
 
   # Public: initialize instrument
   #
+  # decors - array of decimal codepoints
+  #
   # gears  - pitch symbols mapped to range integers
   #
   # keyed  - regexp pattern of signature accidentals
+  #
+  # metals - array of chemical element symbols
   #
   # scales - signature symbols mapped to tonal strings
   #
@@ -64,6 +68,14 @@ class Cosmography
       :fkbjdn  => [:Dn, :Bj, :Fk, :Dn, :Bj, :Fk],
       :unison  => [:Cn]
     }
+
+    @decors = [
+      111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122
+    ]
+
+    @metals = [
+      :Ti, :Mn, :Fe, :Cu, :Ag, :Sn, :Au, :Hg, :Pb, :Ur, :Np, :Pu
+    ]
 
     @scales = {
       :j2 => 'HgHg PuFe ____ ____ CuNp PbAu ____ AuPb ____ AgUr ____ FePu ',
@@ -165,17 +177,26 @@ class Cosmography
   # returns new string
 
   def spindle(yarn=(?- * 60))
-    wire = yarn.tr("\x5F", ?-)
-    ores = %w[Ti Mn Fe Cu Ag Sn Au Hg Pb Ur Np Pu]
-    jots = %w[ o  p  q  r  s  t  u  v  w  x  y  z]
-    numb = 0
+    ores = self.metals.length
+    jots = self.decors.length
 
-    while numb < ores.length do
-      wire = wire.gsub(ores[numb], jots[numb])
-      numb += 1
+    if ores == jots then
+      wire = yarn.tr("\x5F", ?-)
+      rock = String.new(encoding: 'UTF-8', capacity: 16)
+      mask = String.new(encoding: 'UTF-8', capacity: 16)
+      code = 0
+      item = 0
+
+      while item < ores do
+        rock = self.metals[item].to_s
+        code = self.decors[item]
+        mask = code.chr(Encoding::UTF_8)
+        wire = wire.gsub(rock, mask)
+        item += 1
+      end
+
+      yarn = wire.gsub('--', ?\u{5F}) # 2014
     end
-
-    yarn = wire.gsub('--', ?\u{5F})
 
     return yarn
   end
@@ -220,7 +241,7 @@ class Cosmography
   # returns new string
 
   def lattice(cord=nil, pegs=nil)
-    grid = String.new
+    grid = String.new(encoding: 'UTF-8', capacity: 1024)
 
     if cord && pegs then
       beams = pegs.map { |pitch|
@@ -339,16 +360,19 @@ class Cosmography
 
   def tabulate(arcs=[], pads="\t")
     unless arcs.empty? then
+      largo = arcs.map { |elm| elm.length }
+      width = largo.max
+      stout = String.new(encoding: 'UTF-8', capacity: 16)
       cycle = 0
       colum = 7
 
       puts
       arcs.each do |item|
+        stout = item.to_s.rjust(width)
         cycle += 1
-        print pads, item
-        if cycle % colum == 0 then
-          print "\n"
-        end
+
+        print(pads, stout)
+        print("\n") if cycle % colum == 0
       end
       print (cycle % colum != 0) ? "\n\n" : "\n"
     end
