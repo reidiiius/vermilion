@@ -40,11 +40,11 @@ class Cosmography
 
     @toggle = toggle
 
-    @keyed = /\A
+    @keyed = /\A(?>
       (?:[ijknz]{1}[0-7]{1,3}){1,2}
       (?:[lmwx]{1}[1-7]{1,2})?
       (?:[hi]{,3})?
-    \Z/ix
+    )\Z/uix
 
     @gears = {
       :Gj => 30,
@@ -438,6 +438,8 @@ class Cosmography
     alloy = self.toggle ?
       /\A(?:[A-Z][a-z]){2}\Z/ : /\A(?:[o-z]){2}\Z/
 
+    rock = rock.to_s unless rock.is_a? String
+
     if alloy.match? rock then
       veins = []
 
@@ -481,6 +483,8 @@ class Cosmography
   def similar(spat=nil)
     clefs = self.scales.keys.sort
     model = /\A\b(?:[i-nw-z]?[0-7]{,3}){,3}\Z/
+
+    spat = spat.to_s unless spat.is_a? String
 
     if model.match? spat then
       kinds = []
@@ -544,48 +548,53 @@ class Cosmography
   #
   # returns nil
 
-  def vestibule(args=[self.tuning])
-    tunes = self.stocks.keys
+  def vestibule(args=[])
+    if args.length > 0 then
+      tunes = self.stocks.keys
 
-    if tunes.include? args[0].to_sym then
-      self.tuning = args[0].to_sym
+      if tunes.include? args[0].to_sym then
+        self.tuning = args[0].to_sym
 
-      args.shift
+        args.shift
 
-      if args.empty? then
-        self.catalog
-        return nil
+        if args.empty? then
+          self.catalog
+          return nil
+        end
       end
-    end
 
-    if args.include?('gamut') then
-      self.entirety
-    elsif args.include?('group') then
-      spot = args.index('group') + 1
+      if args.include?('gamut') then
+        self.entirety
+      elsif args.include?('group') then
+        spot = args.index('group') + 1
 
-      if args.length > spot then
-        self.excavate args[-1]
-      else
+        if args.length > spot then
+          self.excavate args[-1]
+        else
+          self.refinery
+        end
+      elsif args.include?('query') then
+        spot = args.index('query') + 1
+
+        if args.length > spot then
+          self.similar args[-1]
+        else
+          self.catalog
+        end
+      elsif args.include?('tonal') then
         self.refinery
-      end
-    elsif args.include?('query') then
-      spot = args.index('query') + 1
-
-      if args.length > spot then
-        self.similar args[-1]
       else
-        self.catalog
-      end
-    elsif args.include?('tonal') then
-      self.refinery
-    else
-      stamp = self.epochal
+        stamp = self.epochal
 
-      puts
-      args.each do |argot|
-        self.compose(argot, stamp)
         puts
+        args.each do |argot|
+          self.compose(argot, stamp)
+          puts
+        end
       end
+
+    else
+      self.catalog
     end
 
     return nil

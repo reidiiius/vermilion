@@ -62,10 +62,10 @@ class Epitome
 
     if bool then
       self.stats[:passed] += 1
-      puts "Passed: #{desc}"
+      puts "\e[1;32m\sPassed:\e[1;34m #{desc}\e[0m"
     else
       self.stats[:failed] += 1
-      puts "Failed: #{desc}"
+      puts "\n\e[1;31m\tFailed:\e[1;33m #{desc}\e[0m\n\n"
     end
 
     self.stats[:tested] += 1
@@ -140,6 +140,26 @@ class Epitome
     name = __method__
     rexp = self.cosmo.keyed
     bool = rexp.instance_of? Regexp
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # attribute: keyed
+
+  def keyed_backtrack_duration
+    name = __method__
+    rexp = self.cosmo.keyed
+    spat = 'k236j256w37hii'
+    tick = Time.now.to_f
+    pass = rexp.match?(spat)
+    tock = Time.now.to_f
+    fast = (tock - tick) < 0.001
+    bool = (pass and fast)
   rescue => anomaly
     self.report(name, anomaly)
   else
@@ -808,6 +828,39 @@ class Epitome
 
   # method: entryway
 
+  def entryway_bombard_defense
+    name = __method__
+    numb = self.cosmo.scales.size + 1
+    args = Array.new(numb, 'attack')
+    hold = self.cosmo.entryway(args)
+    bool = hold.instance_of? NilClass
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: entryway
+
+  def entryway_argument_bounds
+    name = __method__
+    args = ['0123456789ABCDEFG', '0123456789ABCDEF']
+    hold = self.cosmo.entryway(args)
+    bool = hold.instance_of? NilClass
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: entryway
+
   def entryway_argument_mistake
     name = __method__
     star = ['disco', 'polka', 'k9']
@@ -849,6 +902,7 @@ class Epitome
       -> { tuning_value_member_stocks },
       -> { toggle_value_type_boolean },
       -> { keyed_value_type_regexp },
+      -> { keyed_backtrack_duration },
       -> { keyed_match_keys_scales },
       -> { gears_value_type_hash },
       -> { gears_member_keys_symbol },
@@ -890,13 +944,16 @@ class Epitome
       -> { vestibule_argument_mistake },
       -> { vestibule_argument_correct },
       -> { entryway_without_argument },
+      -> { entryway_bombard_defense },
+      -> { entryway_argument_bounds },
       -> { entryway_argument_mistake },
       -> { entryway_argument_correct },
     ]
   rescue => anomaly
     self.report(name, anomaly)
   else
-    title = format("\n\t\t%s %s\n", 'Testing', self.cosmo.class)
+    style = "\e[1;35m%s %s\e[0m".center(56)
+    title = format("\n#{style}\n", 'Testing', self.cosmo.class)
     puts title
   ensure
     return nil
