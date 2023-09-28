@@ -32,14 +32,22 @@ class Epitome
   # method: digitally
 
   def digitally
-    style = "\n\tErrors: %d, Failed: %d, Passed: %d, Tested: %d\n\n"
-    stout = sprintf( style,
+    band = "\e[1;31m"
+
+    if (self.stats[:passed] == self.stats[:tested])
+    then band = "\e[1;32m"
+    else band = "\e[1;33m"
+    end
+
+    prep = 'Errors: %d, Failed: %d, Passed: %d, Tested: %d'
+    fest = "\n\t#{band}#{prep}\e[0m\n\n"
+    dash = sprintf( fest,
       self.stats.fetch(:errors),
       self.stats.fetch(:failed),
       self.stats.fetch(:passed),
       self.stats.fetch(:tested))
 
-    puts stout
+    puts dash
     return nil
   end
 
@@ -48,7 +56,8 @@ class Epitome
 
   def report(name, anomaly)
     self.stats[:errors] += 1
-    flaw = format("Defect: %s, Caught: %s\n", name, anomaly.message)
+    pres = "\e[1;31m\sDefect:\e[1;33m\s%s,\n Caught: %s\e[0m\n"
+    flaw = format(pres, name, anomaly.message)
 
     warn flaw
     return nil
@@ -58,14 +67,15 @@ class Epitome
   # method: update
 
   def update(name, bool)
+    numb = sprintf("\e[1;35m%03d\e[0m", self.stats[:tested].succ)
     desc = name.to_s.tr(?_, ?\s)
 
     if bool then
       self.stats[:passed] += 1
-      puts "\e[1;32m\sPassed:\e[1;34m #{desc}\e[0m"
+      puts "[#{numb}]\e[1;32m\sPassed:\e[1;34m #{desc}\e[0m"
     else
       self.stats[:failed] += 1
-      puts "\n\e[1;31m\tFailed:\e[1;33m #{desc}\e[0m\n\n"
+      puts "\n\t[#{numb}]\e[1;31m\sFailed:\e[1;33m #{desc}\e[0m\n\n"
     end
 
     self.stats[:tested] += 1
@@ -124,6 +134,21 @@ class Epitome
   def toggle_value_type_boolean
     name = __method__
     hold = self.cosmo.toggle
+    bool = (hold.is_a?(TrueClass) or hold.is_a?(FalseClass))
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # attribute: escape
+
+  def escape_value_type_boolean
+    name = __method__
+    hold = self.cosmo.escape
     bool = (hold.is_a?(TrueClass) or hold.is_a?(FalseClass))
   rescue => anomaly
     self.report(name, anomaly)
@@ -417,6 +442,21 @@ class Epitome
     name = __method__
     hold = self.cosmo.scales.values
     bool = hold.all? { |item| item.length == 60 }
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: flawed
+
+  def flawed_return_type_string
+    name = __method__
+    hold = self.cosmo.flawed
+    bool = hold.is_a? String
   rescue => anomaly
     self.report(name, anomaly)
   else
@@ -763,6 +803,71 @@ class Epitome
   end
 
 
+  # method: cluster
+
+  def cluster_without_arguments
+    name = __method__
+    hold = self.cosmo.cluster
+    bool = hold.instance_of? NilClass
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: cluster
+
+  def cluster_typograph_mistake
+    name = __method__
+    args = ['query', '69']
+    hold = self.cosmo.cluster(args, 'query')
+    bool = hold.instance_of? NilClass
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: cluster
+
+  def cluster_parameter_mistake
+    name = __method__
+    args = self.cosmo.toggle ?
+      ['group', 'AuHg'] : ['group', 'uv']
+    hold = self.cosmo.cluster(args, 'oops')
+    bool = hold.instance_of? NilClass
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: cluster
+
+  def cluster_arguments_correct
+    name = __method__
+    args = self.cosmo.toggle ?
+      ['group', 'AuHg'] : ['group', 'uv']
+    hold = self.cosmo.cluster(args, 'group')
+    bool = hold.instance_of? NilClass
+  rescue => anomaly
+    self.report(name, anomaly)
+  else
+    self.update(name, bool)
+  ensure
+    return nil
+  end
+
+
   # method: vestibule
 
   def vestibule_without_argument
@@ -782,7 +887,7 @@ class Epitome
 
   def vestibule_argument_mistake
     name = __method__
-    star = ['disco', 'polka']
+    star = ['disco', 'polka', 'j1']
     hold = self.cosmo.vestibule star
     bool = hold.instance_of? NilClass
   rescue => anomaly
@@ -901,6 +1006,7 @@ class Epitome
       -> { tuning_value_type_symbol },
       -> { tuning_value_member_stocks },
       -> { toggle_value_type_boolean },
+      -> { escape_value_type_boolean },
       -> { keyed_value_type_regexp },
       -> { keyed_backtrack_duration },
       -> { keyed_match_keys_scales },
@@ -920,6 +1026,7 @@ class Epitome
       -> { scales_member_keys_symbol },
       -> { scales_member_values_string },
       -> { scales_member_values_length },
+      -> { flawed_return_type_string },
       -> { spindle_return_type_string },
       -> { spindle_return_value_length },
       -> { machine_return_type_string },
@@ -940,6 +1047,10 @@ class Epitome
       -> { similar_argument_mistake },
       -> { similar_argument_correct },
       -> { catalog_return_type_nil },
+      -> { cluster_without_arguments },
+      -> { cluster_typograph_mistake },
+      -> { cluster_parameter_mistake },
+      -> { cluster_arguments_correct },
       -> { vestibule_without_argument },
       -> { vestibule_argument_mistake },
       -> { vestibule_argument_correct },

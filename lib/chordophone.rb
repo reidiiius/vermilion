@@ -10,7 +10,7 @@ class Cosmography
   attr_reader :decors, :keyed, :metals
 
   # Public: get and set instance variable
-  attr_accessor :gears, :scales, :stocks, :toggle, :tuning
+  attr_accessor :escape, :gears, :scales, :stocks, :toggle, :tuning
 
 
   # Public: initialize instrument
@@ -22,6 +22,8 @@ class Cosmography
   # keyed  - regexp pattern of signature accidentals
   #
   # metals - array of chemical element symbols
+  #
+  # escape - boolean latch that determines ANSI status
   #
   # scales - signature symbols mapped to tonal strings
   #
@@ -39,6 +41,8 @@ class Cosmography
     @tuning = tuning
 
     @toggle = toggle
+
+    @escape = true
 
     @keyed = /\A(?>
       (?:[ijknz]{1}[0-7]{1,3}){1,2}
@@ -173,6 +177,25 @@ class Cosmography
   end
 
 
+  # Public: stylize mistake message with ANSI escape code
+  #
+  # flax - string to stylize
+  #
+  # Example
+  #
+  #   flax = 'mistake ?'
+  #
+  #   puts o.flawed(flax)
+  #
+  # returns string
+
+  def flawed(flax=nil)
+    flax = self.escape ? "\e[1;33m#{flax}\e[0m" : flax
+
+    return flax
+  end
+
+
   # Public: transforms substrata of given string
   #
   # yarn - string to transform
@@ -303,27 +326,29 @@ class Cosmography
   # returns nil
 
   def compose(sign=nil, seal=nil)
-    if sign then
-      if self.keyed.match? sign then
-        sign = sign.intern
+    if sign and self.keyed.match? sign then
+      sign = sign.intern
 
-        if self.scales.key? sign then
-          tune = self.tuning
-          pegs = self.stocks[tune]
+      if self.scales.key? sign then
+        tune = self.tuning
+        pegs = self.stocks[tune]
 
-          cord = self.scales[sign]
-          grid = self.lattice(cord, pegs)
+        cord = self.scales[sign]
+        grid = self.lattice(cord, pegs)
 
-          seal = self.epochal() unless seal
-          brim = format("\t%s-%s-%s", sign, tune, seal)
+        seal = self.epochal() unless seal
 
-          puts(brim, grid)
-        else
-          puts "\t#{sign} ?"
-        end
+        pres = '%s-%s-%s'
+        fest = self.escape ? "\e[0;33m#{pres}\e[0m" : pres
+
+        brim = format("\t#{fest}", sign, tune, seal)
+
+        puts(brim, grid)
       else
-        puts "\t#{sign} ?"
+        puts("\t%s ?" % flawed(sign))
       end
+    else
+      puts("\t%s ?" % flawed(sign))
     end
 
     return nil
@@ -452,7 +477,7 @@ class Cosmography
       }
 
       if veins.empty? then
-        puts "\n  #{rock} ?\n"
+        puts("\n  %s ?\n" % flawed(rock))
         self.refinery
       else
         veins.sort!
@@ -460,7 +485,7 @@ class Cosmography
         self.tabulate veins
       end
     else
-      puts "\n  #{rock} ?\n"
+      puts("\n  %s ?\n" % flawed(rock))
       self.refinery
     end
 
@@ -496,14 +521,14 @@ class Cosmography
       }
 
       if kinds.empty? then
-        puts "\n\t#{spat} ?\n"
+        puts("\n\t%s ?\n" % flawed(spat))
 
         self.tabulate clefs
       else
         self.tabulate kinds
       end
     else
-      puts "\n\t#{spat} ?\n"
+      puts("\n\t%s ?\n" % flawed(spat))
 
       self.tabulate clefs
     end
@@ -531,6 +556,47 @@ class Cosmography
     puts
 
     self.tabulate clefs
+
+    return nil
+  end
+
+
+  # Public: branches betwixt search utilities
+  #
+  # args - array of argument strings
+  #
+  # Example
+  #
+  #   args = ['group', 'AuHg']
+  #
+  #   o.cluster(args, 'group')
+  #
+  #   args = ['query', '56']
+  #
+  #   o.cluster(args, 'query'}
+  #
+  # returns nil
+
+  def cluster(args=[], tool=nil)
+    if args.is_a? Array then
+      spot = args.index(tool)
+      spot = 0 unless spot
+
+      if args.length > spot + 1 then
+        case tool
+          when 'group' then self.excavate args[-1]
+          when 'query' then self.similar args[-1]
+          else printf "\n\t%s ?\n\n", flawed(tool)
+        end
+      else
+        case tool
+          when 'group' then self.refinery
+          when 'query' then self.catalog
+          else printf "\n\t%s ?\n\n", flawed(tool)
+        end
+      end
+
+    end
 
     return nil
   end
@@ -564,23 +630,12 @@ class Cosmography
       end
 
       if args.include?('gamut') then
+        self.escape = false
         self.entirety
       elsif args.include?('group') then
-        spot = args.index('group') + 1
-
-        if args.length > spot then
-          self.excavate args[-1]
-        else
-          self.refinery
-        end
+        self.cluster(args, 'group')
       elsif args.include?('query') then
-        spot = args.index('query') + 1
-
-        if args.length > spot then
-          self.similar args[-1]
-        else
-          self.catalog
-        end
+        self.cluster(args, 'query')
       elsif args.include?('tonal') then
         self.refinery
       else
