@@ -1,5 +1,7 @@
 #! /usr/bin/env ruby
 
+$VERBOSE = true
+
 require_relative File.path(File.join('..', 'lib', 'chordophone'))
 
 # Software testing
@@ -32,20 +34,23 @@ class Epitome
   # method: digitally
 
   def digitally
-    band = "\e[1;31m"
+    band = "\e[0;37m"
 
-    if (self.stats[:passed] == self.stats[:tested])
-    then band = "\e[1;32m"
-    else band = "\e[1;33m"
+    if stats[:errors] > 0
+      band = "\e[1;31m"
+    elsif (stats[:passed] == stats[:tested])
+      band = "\e[1;32m"
+    else
+      band = "\e[1;33m"
     end
 
     prep = 'Errors: %d, Failed: %d, Passed: %d, Tested: %d'
     fest = "\n\t#{band}#{prep}\e[0m\n\n"
     dash = sprintf( fest,
-      self.stats.fetch(:errors),
-      self.stats.fetch(:failed),
-      self.stats.fetch(:passed),
-      self.stats.fetch(:tested))
+      stats.fetch(:errors),
+      stats.fetch(:failed),
+      stats.fetch(:passed),
+      stats.fetch(:tested))
 
     puts dash
     return nil
@@ -55,10 +60,11 @@ class Epitome
   # method: report
 
   def report(name, anomaly)
-    self.stats[:errors] += 1
-    pres = "\e[1;31m\sDefect:\e[1;33m\s%s,\n Caught: %s\e[0m\n"
-    flaw = format(pres, name, anomaly.message)
+    stats[:errors] += 1
+    gist = format("\e[1;31m\sDefect:\e[1;33m\s%s\e[0m\n", name)
+    flaw = format("\e[0;37m\sCaught: %s\e[0m\n", anomaly.message)
 
+    puts gist
     warn flaw
     return nil
   end
@@ -67,18 +73,18 @@ class Epitome
   # method: update
 
   def update(name, bool)
-    numb = sprintf("\e[1;35m%03d\e[0m", self.stats[:tested].succ)
+    numb = sprintf("\e[1;35m%03d\e[0m", stats[:tested].succ)
     desc = name.to_s.tr(?_, ?\s)
 
     if bool then
-      self.stats[:passed] += 1
+      stats[:passed] += 1
       puts "[#{numb}]\e[1;32m\sPassed:\e[1;34m #{desc}\e[0m"
     else
-      self.stats[:failed] += 1
+      stats[:failed] += 1
       puts "\n\t[#{numb}]\e[1;31m\sFailed:\e[1;33m #{desc}\e[0m\n\n"
     end
 
-    self.stats[:tested] += 1
+    stats[:tested] += 1
     return nil
   end
 
@@ -87,12 +93,12 @@ class Epitome
 
   def tuning_value_not_nil
     name = __method__
-    hold = self.cosmo.tuning
+    hold = cosmo.tuning
     bool = !hold.nil?
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -102,12 +108,12 @@ class Epitome
 
   def tuning_value_type_symbol
     name = __method__
-    hold = self.cosmo.tuning
+    hold = cosmo.tuning
     bool = hold.instance_of? Symbol
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -117,13 +123,13 @@ class Epitome
 
   def tuning_value_member_stocks
     name = __method__
-    pegs = self.cosmo.stocks.keys
-    hold = self.cosmo.tuning
+    pegs = cosmo.stocks.keys
+    hold = cosmo.tuning
     bool = pegs.member? hold
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -133,12 +139,12 @@ class Epitome
 
   def toggle_value_type_boolean
     name = __method__
-    hold = self.cosmo.toggle
+    hold = cosmo.toggle
     bool = (hold.is_a?(TrueClass) or hold.is_a?(FalseClass))
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -148,12 +154,12 @@ class Epitome
 
   def escape_value_type_boolean
     name = __method__
-    hold = self.cosmo.escape
+    hold = cosmo.escape
     bool = (hold.is_a?(TrueClass) or hold.is_a?(FalseClass))
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -163,12 +169,12 @@ class Epitome
 
   def keyed_value_type_regexp
     name = __method__
-    rexp = self.cosmo.keyed
+    rexp = cosmo.keyed
     bool = rexp.instance_of? Regexp
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -178,7 +184,7 @@ class Epitome
 
   def keyed_backtrack_duration
     name = __method__
-    rexp = self.cosmo.keyed
+    rexp = cosmo.keyed
     spat = 'k236j256w37hii'
     tick = Time.now.to_f
     pass = rexp.match?(spat)
@@ -186,9 +192,9 @@ class Epitome
     fast = (tock - tick) < 0.001
     bool = (pass and fast)
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -198,13 +204,13 @@ class Epitome
 
   def keyed_match_keys_scales
     name = __method__
-    rexp = self.cosmo.keyed
-    hold = self.cosmo.scales.keys
+    rexp = cosmo.keyed
+    hold = cosmo.scales.keys
     bool = hold.all? { |sign| rexp.match? sign }
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -214,12 +220,12 @@ class Epitome
 
   def gears_value_type_hash
     name = __method__
-    hold = self.cosmo.gears
+    hold = cosmo.gears
     bool = hold.is_a? Hash
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -229,12 +235,12 @@ class Epitome
 
   def gears_member_keys_symbol
     name = __method__
-    hold = self.cosmo.gears.keys
+    hold = cosmo.gears.keys
     bool = hold.all? { |item| item.kind_of? Symbol }
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -244,12 +250,12 @@ class Epitome
 
   def gears_member_values_integer
     name = __method__
-    hold = self.cosmo.gears.values
+    hold = cosmo.gears.values
     bool = hold.all? { |item| item.kind_of? Integer }
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -259,12 +265,12 @@ class Epitome
 
   def stocks_value_type_hash
     name = __method__
-    hold = self.cosmo.stocks
+    hold = cosmo.stocks
     bool = hold.is_a? Hash
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -274,12 +280,12 @@ class Epitome
 
   def stocks_member_keys_symbol
     name = __method__
-    hold = self.cosmo.stocks.keys
+    hold = cosmo.stocks.keys
     bool = hold.all? { |item| item.kind_of? Symbol }
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -289,12 +295,12 @@ class Epitome
 
   def stocks_member_values_array
     name = __method__
-    hold = self.cosmo.stocks.values
+    hold = cosmo.stocks.values
     bool = hold.all? { |item| item.kind_of? Array }
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -304,12 +310,12 @@ class Epitome
 
   def stocks_value_element_symbol
     name = __method__
-    hold = self.cosmo.stocks.values.flatten
+    hold = cosmo.stocks.values.flatten
     bool = hold.all? { |item| item.kind_of? Symbol }
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -319,13 +325,13 @@ class Epitome
 
   def stocks_element_member_gears
     name = __method__
-    bank = self.cosmo.gears.keys
-    hold = self.cosmo.stocks.values.flatten
+    bank = cosmo.gears.keys
+    hold = cosmo.stocks.values.flatten
     bool = hold.all? { |item| bank.include? item }
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -335,12 +341,12 @@ class Epitome
 
   def decors_value_type_array
     name = __method__
-    hold = self.cosmo.decors
+    hold = cosmo.decors
     bool = hold.instance_of? Array
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -350,12 +356,12 @@ class Epitome
 
   def decors_members_type_integer
     name = __method__
-    hold = self.cosmo.decors
+    hold = cosmo.decors
     bool = hold.all? { |item| item.is_a? Integer }
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -365,12 +371,12 @@ class Epitome
 
   def metals_value_type_array
     name = __method__
-    hold = self.cosmo.metals
+    hold = cosmo.metals
     bool = hold.instance_of? Array
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -380,12 +386,12 @@ class Epitome
 
   def metals_members_type_symbol
     name = __method__
-    hold = self.cosmo.metals
+    hold = cosmo.metals
     bool = hold.all? { |item| item.is_a? Symbol }
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -395,12 +401,12 @@ class Epitome
 
   def scales_value_type_hash
     name = __method__
-    hold = self.cosmo.scales
+    hold = cosmo.scales
     bool = hold.is_a? Hash
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -410,12 +416,12 @@ class Epitome
 
   def scales_member_keys_symbol
     name = __method__
-    hold = self.cosmo.scales.keys
+    hold = cosmo.scales.keys
     bool = hold.all? { |item| item.kind_of? Symbol }
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -425,12 +431,12 @@ class Epitome
 
   def scales_member_values_string
     name = __method__
-    hold = self.cosmo.scales.values
+    hold = cosmo.scales.values
     bool = hold.all? { |item| item.kind_of? String }
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -440,12 +446,12 @@ class Epitome
 
   def scales_member_values_length
     name = __method__
-    hold = self.cosmo.scales.values
+    hold = cosmo.scales.values
     bool = hold.all? { |item| item.length == 60 }
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -455,12 +461,12 @@ class Epitome
 
   def flawed_return_type_string
     name = __method__
-    hold = self.cosmo.flawed
+    hold = cosmo.flawed
     bool = hold.is_a? String
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -470,12 +476,12 @@ class Epitome
 
   def spindle_return_type_string
     name = __method__
-    hold = self.cosmo.spindle
+    hold = cosmo.spindle
     bool = hold.is_a? String
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -485,14 +491,14 @@ class Epitome
 
   def spindle_return_value_length
     name = __method__
-    yarn = self.cosmo.scales.fetch(:n0)
-    hold = self.cosmo.spindle(yarn)
+    yarn = cosmo.scales.fetch(:n0)
+    hold = cosmo.spindle(yarn)
     span = hold.length
     bool = span.eql? 36
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -502,12 +508,12 @@ class Epitome
 
   def machine_return_type_string
     name = __method__
-    hold = self.cosmo.machine
+    hold = cosmo.machine
     bool = hold.is_a? String
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -517,16 +523,16 @@ class Epitome
 
   def machine_return_value_length
     name = __method__
-    cord = self.cosmo.scales.fetch(:n0)
-    numb = self.cosmo.gears.fetch(:Gn)
-    hold = self.cosmo.machine(cord, numb)
-    cars = self.cosmo.toggle ? 64 : 38
+    cord = cosmo.scales.fetch(:n0)
+    numb = cosmo.gears.fetch(:Gn)
+    hold = cosmo.machine(cord, numb)
+    cars = cosmo.toggle ? 64 : 38
     span = hold.length
     bool = span.eql? cars
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -536,17 +542,17 @@ class Epitome
 
   def machine_return_value_match
     name = __method__
-    cord = self.cosmo.scales.fetch(:n0)
-    numb = self.cosmo.gears.fetch(:Gn)
-    hold = self.cosmo.machine(cord, numb)
-    wire = self.cosmo.toggle ?
+    cord = cosmo.scales.fetch(:n0)
+    numb = cosmo.gears.fetch(:Gn)
+    hold = cosmo.machine(cord, numb)
+    wire = cosmo.toggle ?
       'AuAg ____ AgAu ____ FePb HgCu ____ SnSn ____ CuHg PbFe ____ AuAg' :
       'us __ su __ qw vr __ tt __ rv wq __ us'
     bool = hold.eql? wire
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -556,14 +562,14 @@ class Epitome
 
   def lattice_return_type_string
     name = __method__
-    cord = self.cosmo.scales[:n0]
-    pegs = self.cosmo.stocks[:cgdae]
-    hold = self.cosmo.lattice(cord, pegs)
+    cord = cosmo.scales[:n0]
+    pegs = cosmo.stocks[:cgdae]
+    hold = cosmo.lattice(cord, pegs)
     bool = hold.instance_of? String
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -573,12 +579,12 @@ class Epitome
 
   def epochal_return_type_string
     name = __method__
-    hold = self.cosmo.epochal
+    hold = cosmo.epochal
     bool = hold.instance_of? String
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -588,12 +594,12 @@ class Epitome
 
   def compose_without_argument
     name = __method__
-    hold = self.cosmo.compose
+    hold = cosmo.compose
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -604,12 +610,12 @@ class Epitome
   def compose_argument_mistake
     name = __method__
     sign = 'k9'
-    hold = self.cosmo.compose sign
+    hold = cosmo.compose sign
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -620,13 +626,13 @@ class Epitome
   def compose_argument_correct
     name = __method__
     sign = 'n0'
-    seal = self.cosmo.epochal
-    hold = self.cosmo.compose(sign, seal)
+    seal = cosmo.epochal
+    hold = cosmo.compose(sign, seal)
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -636,12 +642,12 @@ class Epitome
 
   def entirety_return_type_nil
     name = __method__
-    hold = self.cosmo.entirety
+    hold = cosmo.entirety
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -651,12 +657,12 @@ class Epitome
 
   def tabulate_without_arguments
     name = __method__
-    hold = self.cosmo.tabulate
+    hold = cosmo.tabulate
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -666,14 +672,14 @@ class Epitome
 
   def tabulate_arguments_received
     name = __method__
-    arcs = self.cosmo.scales.keys.sort
+    arcs = cosmo.scales.keys.sort
     pads = "\t"
-    hold = self.cosmo.tabulate(arcs, pads)
+    hold = cosmo.tabulate(arcs, pads)
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -683,12 +689,12 @@ class Epitome
 
   def refinery_return_type_nil
     name = __method__
-    hold = self.cosmo.refinery
+    hold = cosmo.refinery
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -698,12 +704,12 @@ class Epitome
 
   def excavate_without_argument
     name = __method__
-    hold = self.cosmo.excavate
+    hold = cosmo.excavate
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -713,13 +719,13 @@ class Epitome
 
   def excavate_argument_mistake
     name = __method__
-    rock = self.cosmo.toggle ? 'ZeTa' : 'om'
-    hold = self.cosmo.excavate rock
+    rock = cosmo.toggle ? 'ZeTa' : 'om'
+    hold = cosmo.excavate rock
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -729,13 +735,13 @@ class Epitome
 
   def excavate_argument_correct
     name = __method__
-    rock = self.cosmo.toggle ? 'AuHg' : 'uv'
-    hold = self.cosmo.excavate rock
+    rock = cosmo.toggle ? 'AuHg' : 'uv'
+    hold = cosmo.excavate rock
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -745,12 +751,12 @@ class Epitome
 
   def similar_without_argument
     name = __method__
-    hold = self.cosmo.similar
+    hold = cosmo.similar
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -761,12 +767,12 @@ class Epitome
   def similar_argument_mistake
     name = __method__
     spat = '99'
-    hold = self.cosmo.similar spat
+    hold = cosmo.similar spat
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -777,12 +783,12 @@ class Epitome
   def similar_argument_correct
     name = __method__
     spat = '56'
-    hold = self.cosmo.similar spat
+    hold = cosmo.similar spat
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -792,12 +798,12 @@ class Epitome
 
   def catalog_return_type_nil
     name = __method__
-    hold = self.cosmo.catalog
+    hold = cosmo.catalog
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -807,12 +813,12 @@ class Epitome
 
   def cluster_without_arguments
     name = __method__
-    hold = self.cosmo.cluster
+    hold = cosmo.cluster
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -823,12 +829,12 @@ class Epitome
   def cluster_typograph_mistake
     name = __method__
     args = ['query', '69']
-    hold = self.cosmo.cluster(args, 'query')
+    hold = cosmo.cluster(args, 'query')
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -838,14 +844,14 @@ class Epitome
 
   def cluster_parameter_mistake
     name = __method__
-    args = self.cosmo.toggle ?
+    args = cosmo.toggle ?
       ['group', 'AuHg'] : ['group', 'uv']
-    hold = self.cosmo.cluster(args, 'oops')
+    hold = cosmo.cluster(args, 'oops')
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -855,14 +861,14 @@ class Epitome
 
   def cluster_arguments_correct
     name = __method__
-    args = self.cosmo.toggle ?
+    args = cosmo.toggle ?
       ['group', 'AuHg'] : ['group', 'uv']
-    hold = self.cosmo.cluster(args, 'group')
+    hold = cosmo.cluster(args, 'group')
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -872,12 +878,12 @@ class Epitome
 
   def vestibule_without_argument
     name = __method__
-    hold = self.cosmo.vestibule
+    hold = cosmo.vestibule
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -888,12 +894,12 @@ class Epitome
   def vestibule_argument_mistake
     name = __method__
     star = ['disco', 'polka', 'j1']
-    hold = self.cosmo.vestibule star
+    hold = cosmo.vestibule star
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -903,14 +909,14 @@ class Epitome
 
   def vestibule_argument_correct
     name = __method__
-    star = self.cosmo.toggle ?
+    star = cosmo.toggle ?
       ['group', 'AuHg'] : ['group', 'uv']
-    hold = self.cosmo.vestibule star
+    hold = cosmo.vestibule star
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -920,12 +926,12 @@ class Epitome
 
   def entryway_without_argument
     name = __method__
-    hold = self.cosmo.entryway
+    hold = cosmo.entryway
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -935,14 +941,14 @@ class Epitome
 
   def entryway_bombard_defense
     name = __method__
-    numb = self.cosmo.scales.size + 1
+    numb = cosmo.scales.size + 1
     args = Array.new(numb, 'attack')
-    hold = self.cosmo.entryway(args)
+    hold = cosmo.entryway(args)
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -953,12 +959,12 @@ class Epitome
   def entryway_argument_bounds
     name = __method__
     args = ['0123456789ABCDEFG', '0123456789ABCDEF']
-    hold = self.cosmo.entryway(args)
+    hold = cosmo.entryway(args)
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -969,12 +975,12 @@ class Epitome
   def entryway_argument_mistake
     name = __method__
     star = ['disco', 'polka', 'k9']
-    hold = self.cosmo.entryway star
+    hold = cosmo.entryway star
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -985,12 +991,12 @@ class Epitome
   def entryway_argument_correct
     name = __method__
     star = ['cgdae', 'n0', 'j3']
-    hold = self.cosmo.entryway star
+    hold = cosmo.entryway star
     bool = hold.instance_of? NilClass
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
-    self.update(name, bool)
+    update(name, bool)
   ensure
     return nil
   end
@@ -1061,10 +1067,10 @@ class Epitome
       -> { entryway_argument_correct },
     ]
   rescue => anomaly
-    self.report(name, anomaly)
+    report(name, anomaly)
   else
     style = "\e[1;35m%s %s\e[0m".center(56)
-    title = format("\n#{style}\n", 'Testing', self.cosmo.class)
+    title = format("\n#{style}\n", 'Testing', cosmo.class)
     puts title
   ensure
     return nil
@@ -1074,21 +1080,23 @@ class Epitome
   # method: runt
 
   def runt
-    self.casework
-    sleep 1
+    tick = 0.5
 
-    unless self.tasks.empty? then
-      stack = self.tasks
+    casework
+    sleep tick
+
+    unless tasks.empty? then
+      stack = tasks.select { |lamb| lamb.is_a? Proc }
 
       stack.each do |job|
-        sleep 1
+        sleep tick
         job.call
       end
 
-      sleep 1
+      sleep tick
     end
 
-    self.digitally
+    digitally
     return nil
   end
 

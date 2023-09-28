@@ -190,7 +190,7 @@ class Cosmography
   # returns string
 
   def flawed(flax=nil)
-    flax = self.escape ? "\e[1;33m#{flax}\e[0m" : flax
+    flax = escape ? "\e[1;33m#{flax}\e[0m" : flax
 
     return flax
   end
@@ -209,8 +209,8 @@ class Cosmography
   # returns new string
 
   def spindle(yarn=(?- * 60))
-    ores = self.metals.length
-    jots = self.decors.length
+    ores = metals.length
+    jots = decors.length
 
     if ores == jots then
       wire = yarn.tr("\x5F", ?-)
@@ -220,8 +220,8 @@ class Cosmography
       item = 0
 
       while item < ores do
-        rock = self.metals[item].to_s
-        code = self.decors[item]
+        rock = metals[item].to_s
+        code = decors[item]
         mask = code.chr(Encoding::UTF_8)
         wire = wire.gsub(rock, mask)
         item += 1
@@ -252,7 +252,7 @@ class Cosmography
   def machine(cord=(?- * 60), numb=0)
     jute = cord[numb, 60] << cord[ 0, numb]
     yarn = jute.concat(jute[0, 4]) # octave
-    yarn = self.spindle(yarn) unless self.toggle
+    yarn = spindle(yarn) unless toggle
 
     return yarn
   end
@@ -278,7 +278,7 @@ class Cosmography
 
     if cord && pegs then
       beams = pegs.map { |pitch|
-        self.machine(cord, self.gears[pitch])
+        machine(cord, gears[pitch])
       }
 
       truss = "\t%s\n" * beams.count
@@ -326,20 +326,20 @@ class Cosmography
   # returns nil
 
   def compose(sign=nil, seal=nil)
-    if sign and self.keyed.match? sign then
+    if sign and keyed.match? sign then
       sign = sign.intern
 
-      if self.scales.key? sign then
-        tune = self.tuning
-        pegs = self.stocks[tune]
+      if scales.key? sign then
+        tune = tuning
+        pegs = stocks[tune]
 
-        cord = self.scales[sign]
-        grid = self.lattice(cord, pegs)
+        cord = scales[sign]
+        grid = lattice(cord, pegs)
 
-        seal = self.epochal() unless seal
+        seal = epochal() unless seal
 
         pres = '%s-%s-%s'
-        fest = self.escape ? "\e[0;33m#{pres}\e[0m" : pres
+        fest = escape ? "\e[0;33m#{pres}\e[0m" : pres
 
         brim = format("\t#{fest}", sign, tune, seal)
 
@@ -364,12 +364,12 @@ class Cosmography
   # returns nil
 
   def entirety
-    clefs = self.scales.keys.sort
-    stamp = self.epochal
+    clefs = scales.keys.sort
+    stamp = epochal
 
     puts
     clefs.each do |sign|
-      self.compose(sign, stamp)
+      compose(sign, stamp)
       puts
     end
 
@@ -425,11 +425,11 @@ class Cosmography
   # returns nil
 
   def refinery
-    ores = self.scales.values
+    ores = scales.values
     mill = []
 
     ores.each do |rock|
-      rock = self.spindle(rock) unless self.toggle
+      rock = spindle(rock) unless toggle
 
       mill.push(rock.split)
     end
@@ -439,9 +439,9 @@ class Cosmography
 
     ores.uniq!
     ores.sort!
-    self.toggle ? ores.pop : ores.shift
+    toggle ? ores.pop : ores.shift
 
-    self.tabulate ores, "\s\s"
+    tabulate ores, "\s\s"
 
     return nil
   end
@@ -460,7 +460,7 @@ class Cosmography
   # returns nil
 
   def excavate(rock=nil)
-    alloy = self.toggle ?
+    alloy = toggle ?
       /\A(?:[A-Z][a-z]){2}\Z/ : /\A(?:[o-z]){2}\Z/
 
     rock = rock.to_s unless rock.is_a? String
@@ -468,8 +468,8 @@ class Cosmography
     if alloy.match? rock then
       veins = []
 
-      self.scales.each_pair { |clef, wire|
-        wire = self.spindle(wire) unless self.toggle
+      scales.each_pair { |clef, wire|
+        wire = spindle(wire) unless toggle
 
         if wire.include? rock then
           veins.push(clef)
@@ -478,15 +478,15 @@ class Cosmography
 
       if veins.empty? then
         puts("\n  %s ?\n" % flawed(rock))
-        self.refinery
+        refinery
       else
         veins.sort!
 
-        self.tabulate veins
+        tabulate veins
       end
     else
       puts("\n  %s ?\n" % flawed(rock))
-      self.refinery
+      refinery
     end
 
     return nil
@@ -506,7 +506,7 @@ class Cosmography
   # returns nil
 
   def similar(spat=nil)
-    clefs = self.scales.keys.sort
+    clefs = scales.keys.sort
     model = /\A\b(?:[i-nw-z]?[0-7]{,3}){,3}\Z/
 
     spat = spat.to_s unless spat.is_a? String
@@ -523,14 +523,14 @@ class Cosmography
       if kinds.empty? then
         puts("\n\t%s ?\n" % flawed(spat))
 
-        self.tabulate clefs
+        tabulate clefs
       else
-        self.tabulate kinds
+        tabulate kinds
       end
     else
       puts("\n\t%s ?\n" % flawed(spat))
 
-      self.tabulate clefs
+      tabulate clefs
     end
 
     return nil
@@ -546,8 +546,8 @@ class Cosmography
   # returns nil
 
   def catalog
-    clefs = self.scales.keys.sort
-    tuned = self.stocks.keys.sort
+    clefs = scales.keys.sort
+    tuned = stocks.keys.sort
 
     puts
     tuned.each do |stock|
@@ -555,7 +555,7 @@ class Cosmography
     end
     puts
 
-    self.tabulate clefs
+    tabulate clefs
 
     return nil
   end
@@ -584,14 +584,14 @@ class Cosmography
 
       if args.length > spot + 1 then
         case tool
-          when 'group' then self.excavate args[-1]
-          when 'query' then self.similar args[-1]
+          when 'group' then excavate args[-1]
+          when 'query' then similar args[-1]
           else printf "\n\t%s ?\n\n", flawed(tool)
         end
       else
         case tool
-          when 'group' then self.refinery
-          when 'query' then self.catalog
+          when 'group' then refinery
+          when 'query' then catalog
           else printf "\n\t%s ?\n\n", flawed(tool)
         end
       end
@@ -616,40 +616,39 @@ class Cosmography
 
   def vestibule(args=[])
     if args.length > 0 then
-      tunes = self.stocks.keys
+      tunes = stocks.keys
 
       if tunes.include? args[0].to_sym then
         self.tuning = args[0].to_sym
-
         args.shift
 
         if args.empty? then
-          self.catalog
+          catalog
           return nil
         end
       end
 
       if args.include?('gamut') then
         self.escape = false
-        self.entirety
+        entirety
       elsif args.include?('group') then
-        self.cluster(args, 'group')
+        cluster(args, 'group')
       elsif args.include?('query') then
-        self.cluster(args, 'query')
+        cluster(args, 'query')
       elsif args.include?('tonal') then
-        self.refinery
+        refinery
       else
-        stamp = self.epochal
+        stamp = epochal
 
         puts
         args.each do |argot|
-          self.compose(argot, stamp)
+          compose(argot, stamp)
           puts
         end
       end
 
     else
-      self.catalog
+      catalog
     end
 
     return nil
@@ -671,22 +670,26 @@ class Cosmography
   def entryway(args=[])
     if args.length > 0 then
 
-      if args.length > self.scales.length then
+      if args.length > scales.length then
         puts 'Request denied'
       else
+        args.map! do |argot|
+          argot.to_s
+        end
+
         args.reject! do |argot|
           argot.length > 16
         end
 
         if args.empty? then
-          self.catalog
+          catalog
         else
-          self.vestibule(args)
+          vestibule(args)
         end
       end
 
     else
-      self.catalog
+      catalog
     end
 
     return nil

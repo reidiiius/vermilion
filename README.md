@@ -46,6 +46,106 @@ Command-line
 
     ruby lib/chordophone.rb gamut | sensible-pager
 
+REPL
+
+    irb -r './lib/chordophone.rb'
+
+;
+
+    o = Chordophone::Cosmography.new(:beadgcf, false)
+
+;
+
+    puts o.instance_variables.sort
+
+;
+
+    puts o.public_methods.first(30).sort
+
+;
+
+    o.catalog
+
+;
+
+    o.tuning = :eadgbe
+
+;
+
+    args = [:n0, :j3]
+
+;
+
+    o.entryway(args)
+
+;
+
+    args.push 'tonal'
+
+;
+
+    o.entryway(args)
+
+;
+
+    rock = :uv
+
+;
+
+    o.excavate rock
+
+;
+
+    spat = 56
+
+;
+
+    o.similar spat
+
+;
+
+    args = ['group', :uv]
+
+;
+
+    o.entryway(args)
+
+;
+
+    args = ['query', 56]
+
+;
+
+    o.entryway(args)
+
+;
+
+    o.toggle = true
+
+;
+
+    args = [:k56, :j56]
+
+;
+
+    o.entryway(args)
+
+;
+
+    o.tuning = :cgdae
+
+;
+
+    o.entryway(args)
+
+;
+
+    o.catalog
+
+;
+
+    quit
+
 ---
 
 ### Distribution
