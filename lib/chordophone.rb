@@ -217,14 +217,14 @@ class Cosmography
       rock = String.new(encoding: 'UTF-8', capacity: 16)
       mask = String.new(encoding: 'UTF-8', capacity: 16)
       code = 0
-      item = 0
+      numb = 0
 
-      while item < ores do
-        rock = metals[item].to_s
-        code = decors[item]
+      while numb < ores do
+        rock = metals[numb].to_s
+        code = decors[numb]
         mask = code.chr(Encoding::UTF_8)
         wire = wire.gsub(rock, mask)
-        item += 1
+        numb += 1
       end
 
       yarn = wire.gsub('--', ?\u{5F}) # 2014
@@ -547,10 +547,10 @@ class Cosmography
 
   def catalog
     clefs = scales.keys.sort
-    tuned = stocks.keys.sort
+    harps = stocks.keys.sort
 
     puts
-    tuned.each do |stock|
+    harps.each do |stock|
       print "\s\s" << stock.to_s
     end
     puts
@@ -616,11 +616,14 @@ class Cosmography
 
   def vestibule(args=[])
     if args.length > 0 then
-      tunes = stocks.keys
+      harps = stocks.keys
+      where = args.index do |item|
+        harps.include? item.intern
+      end
 
-      if tunes.include? args[0].to_sym then
-        self.tuning = args[0].to_sym
-        args.shift
+      if where then
+        tuned = args.delete_at(where)
+        self.tuning = tuned.intern
 
         if args.empty? then
           catalog
