@@ -56,19 +56,7 @@ REPL
 
 ;
 
-    puts o.instance_variables.sort
-
-;
-
-    puts o.public_methods.first(30).sort
-
-;
-
     o.catalog
-
-;
-
-    o.tuning = :eadgbe
 
 ;
 
@@ -76,51 +64,39 @@ REPL
 
 ;
 
-    o.entryway(args)
+    o.entryway args
 
 ;
 
-    args.push 'tonal'
+    o.tuning = :eadgbe
 
 ;
 
-    o.entryway(args)
+    o.entryway args
 
 ;
 
-    rock = :uv
+    args.push :tonal
 
 ;
 
-    o.excavate rock
+    o.entryway args
 
 ;
 
-    spat = 56
+    args = [:group, :uv]
 
 ;
 
-    o.similar spat
+    o.entryway args
 
 ;
 
-    args = ['group', :uv]
+    args = [:query, 56]
 
 ;
 
-    o.entryway(args)
-
-;
-
-    args = ['query', 56]
-
-;
-
-    o.entryway(args)
-
-;
-
-    o.toggle = true
+    o.entryway args
 
 ;
 
@@ -128,7 +104,7 @@ REPL
 
 ;
 
-    o.entryway(args)
+    o.entryway args
 
 ;
 
@@ -136,7 +112,15 @@ REPL
 
 ;
 
-    o.entryway(args)
+    o.entryway args
+
+;
+
+    o.toggle = true
+
+;
+
+    o.entryway args
 
 ;
 
