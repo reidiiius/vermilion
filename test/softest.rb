@@ -558,6 +558,38 @@ class Epitome
   end
 
 
+  # method: matrix
+
+  def matrix_return_type_array
+    name = __method__
+    hold = cosmo.matrix
+    bool = hold.instance_of? Array
+  rescue => anomaly
+    report(name, anomaly)
+  else
+    update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: matrix
+
+  def matrix_return_poly_array
+    name = __method__
+    harp = :cgdae
+    clef = :j23
+    hold = cosmo.matrix(harp, clef)
+    bool = hold.all? { |item| item.is_a? Array }
+  rescue => anomaly
+    report(name, anomaly)
+  else
+    update(name, bool)
+  ensure
+    return nil
+  end
+
+
   # method: lattice
 
   def lattice_return_type_string
@@ -1038,6 +1070,8 @@ class Epitome
       -> { machine_return_type_string },
       -> { machine_return_value_length },
       -> { machine_return_value_match },
+      -> { matrix_return_type_array },
+      -> { matrix_return_poly_array },
       -> { lattice_return_type_string },
       -> { epochal_return_type_string },
       -> { compose_without_argument },

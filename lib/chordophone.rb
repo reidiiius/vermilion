@@ -258,6 +258,35 @@ class Cosmography
   end
 
 
+  # Public: creates matrix for given tuning and signature
+  #
+  # harp - tuning symbol from stocks keys
+  #
+  # clef - signature symbol from scales keys
+  #
+  # Example
+  #
+  #   harp = :cgdae
+  #   clef = :j23
+  #   grid = o.matrix(harp, clef)
+  #
+  #   grid.each { |crow| printf("\t%s\n", crow.join(?\s)) }
+  #
+  # returns multidimensional array
+
+  def matrix(harp=:beadgcf, clef=:n0)
+    straw = String.new
+    crows = Array.new
+
+    stocks[harp].each do |tone|
+      straw = machine(scales[clef], gears[tone])
+      crows.push(straw.split.map { |duet| duet.intern })
+    end
+
+    return crows
+  end
+
+
   # Public: assemble table with given string and array
   #
   # cord - string to process
