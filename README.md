@@ -60,7 +60,7 @@ REPL
 
 ;
 
-    args = [:n0, :j3]
+    args = %i[n0 j3]
 
 ;
 
@@ -84,7 +84,7 @@ REPL
 
 ;
 
-    args = [:group, :uv]
+    args = %i[group uv]
 
 ;
 
@@ -100,7 +100,7 @@ REPL
 
 ;
 
-    args = [:k56, :j56]
+    args = %i[k56 j56]
 
 ;
 

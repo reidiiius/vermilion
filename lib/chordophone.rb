@@ -204,7 +204,7 @@ class Cosmography
   #
   #   yarn = o.scales[:n0]
   #
-  #   puts o.spindle(yarn)
+  #   puts o.spindle yarn
   #
   # returns new string
 
@@ -266,7 +266,7 @@ class Cosmography
   #
   # Example
   #
-  #   harp = :cgdae
+  #   harp = :beadgcf
   #   clef = :j23
   #   grid = o.matrix(harp, clef)
   #
@@ -346,7 +346,7 @@ class Cosmography
   #
   # Example
   #
-  #   sign = 'n0'
+  #   sign = :n0
   #
   #   seal = o.epochal
   #
@@ -393,14 +393,17 @@ class Cosmography
   # returns nil
 
   def entirety
-    clefs = scales.keys.sort
-    stamp = epochal
+    odes = scales.keys.sort
+    seal = epochal
+    self.escape = false
 
     puts
-    clefs.each do |sign|
-      compose(sign, stamp)
+    odes.each do |sign|
+      compose(sign, seal)
       puts
     end
+
+    self.escape = true
 
     return nil
   end
@@ -416,7 +419,7 @@ class Cosmography
   #
   #   arcs = o.scales.keys.sort
   #
-  #   pads = "\t"
+  #   pads = ?\t
   #
   #   o.tabulate(arcs, pads)
   #
@@ -482,7 +485,7 @@ class Cosmography
   #
   # Example
   #
-  #   rock = 'AuHg'
+  #   rock = :AuHg
   #
   #   o.excavate rock
   #
@@ -528,7 +531,7 @@ class Cosmography
   #
   # Example
   #
-  #   spat = '56'
+  #   spat = 56
   #
   #   o.similar spat
   #
@@ -590,41 +593,45 @@ class Cosmography
   end
 
 
-  # Public: branches betwixt search utilities
+  # Public: branches between search utilities
   #
-  # args - array of argument strings
+  # args - array of numbers, strings or symbols
+  #
+  # tool - symbol utility name group or query
   #
   # Example
   #
-  #   args = ['group', 'AuHg']
+  #   args = %i[group AuHg]
   #
-  #   o.cluster(args, 'group')
+  #   o.cluster(args, :group)
   #
-  #   args = ['query', '56']
+  #   args = [:query, 56]
   #
-  #   o.cluster(args, 'query'}
+  #   o.cluster(args, :query)
   #
   # returns nil
 
-  def cluster(args=[], tool=nil)
-    if args.is_a? Array then
-      spot = args.index(tool)
-      spot = 0 unless spot
-
-      if args.length > spot + 1 then
-        case tool
-          when 'group' then excavate args[-1]
-          when 'query' then similar args[-1]
-          else printf "\n\t%s ?\n\n", flawed(tool)
-        end
-      else
-        case tool
-          when 'group' then refinery
-          when 'query' then catalog
-          else printf "\n\t%s ?\n\n", flawed(tool)
+  def cluster(args=nil, tool=nil)
+    if args.is_a? Array and tool.is_a? Symbol
+      pars = args.map do |item|
+        if item.is_a? Integer then item.to_s
+        else item.intern
         end
       end
 
+      spot = pars.index(tool)
+
+      if spot then
+        kind = pars.delete_at(spot)
+
+        case kind
+          when :group then excavate pars.last
+          when :query then similar pars.last
+          else printf "\n\t%s ?\n\n", flawed(tool)
+        end
+      else
+        printf "\n\t%s ?\n\n", flawed(tool)
+      end
     end
 
     return nil
@@ -637,43 +644,39 @@ class Cosmography
   #
   # Example
   #
-  #   args = ['group', 'AuHg']
+  #   args = %w[group AuHg]
   #
   #   o.vestibule(args)
   #
   # returns nil
 
   def vestibule(args=[])
-    if args.length > 0 then
+    if args.any? then
+      parts = args.map { |item| item.intern }
       harps = stocks.keys
-      where = args.index do |item|
-        harps.include? item.intern
+      where = parts.index do |item|
+        harps.include? item
       end
 
       if where then
-        tuned = args.delete_at(where)
-        self.tuning = tuned.intern
+        tuned = parts.delete_at(where)
+        self.tuning = tuned
 
-        if args.empty? then
+        if parts.empty? then
           catalog
           return nil
         end
       end
 
-      if args.include?('gamut') then
-        self.escape = false
-        entirety
-      elsif args.include?('group') then
-        cluster(args, 'group')
-      elsif args.include?('query') then
-        cluster(args, 'query')
-      elsif args.include?('tonal') then
-        refinery
+      if    parts.include?(:gamut) then entirety
+      elsif parts.include?(:group) then cluster(parts, :group)
+      elsif parts.include?(:query) then cluster(parts, :query)
+      elsif parts.include?(:tonal) then refinery
       else
         stamp = epochal
 
         puts
-        args.each do |argot|
+        parts.each do |argot|
           compose(argot, stamp)
           puts
         end
@@ -693,7 +696,7 @@ class Cosmography
   #
   # Example
   #
-  #   args = ['cgdae', 'n0', 'j3']
+  #   args = %w[cgdae n0 j3]
   #
   #   o.entryway(args)
   #

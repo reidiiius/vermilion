@@ -973,8 +973,8 @@ class Epitome
 
   def entryway_bombard_defense
     name = __method__
-    numb = cosmo.scales.size + 1
-    args = Array.new(numb, 'attack')
+    numb = cosmo.scales.size.next
+    args = Array.new(numb, :attack)
     hold = cosmo.entryway(args)
     bool = hold.instance_of? NilClass
   rescue => anomaly
