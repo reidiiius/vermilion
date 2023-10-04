@@ -165,57 +165,6 @@ class Epitome
   end
 
 
-  # attribute: keyed
-
-  def keyed_value_type_regexp
-    name = __method__
-    rexp = cosmo.keyed
-    bool = rexp.instance_of? Regexp
-  rescue => anomaly
-    report(name, anomaly)
-  else
-    update(name, bool)
-  ensure
-    return nil
-  end
-
-
-  # attribute: keyed
-
-  def keyed_backtrack_duration
-    name = __method__
-    rexp = cosmo.keyed
-    spat = 'k236j256w37hii'
-    tick = Time.now.to_f
-    pass = rexp.match?(spat)
-    tock = Time.now.to_f
-    fast = (tock - tick) < 0.001
-    bool = (pass and fast)
-  rescue => anomaly
-    report(name, anomaly)
-  else
-    update(name, bool)
-  ensure
-    return nil
-  end
-
-
-  # attribute: keyed
-
-  def keyed_match_keys_scales
-    name = __method__
-    rexp = cosmo.keyed
-    hold = cosmo.scales.keys
-    bool = hold.all? { |sign| rexp.match? sign }
-  rescue => anomaly
-    report(name, anomaly)
-  else
-    update(name, bool)
-  ensure
-    return nil
-  end
-
-
   # attribute: gears
 
   def gears_value_type_hash
@@ -719,10 +668,41 @@ class Epitome
 
   # method: refinery
 
-  def refinery_return_type_nil
+  def refinery_return_type_array
     name = __method__
     hold = cosmo.refinery
-    bool = hold.instance_of? NilClass
+    bool = hold.instance_of? Array
+  rescue => anomaly
+    report(name, anomaly)
+  else
+    update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: refinery
+
+  def refinery_array_all_strings
+    name = __method__
+    hold = cosmo.refinery
+    bool = hold.all? { |item| item.is_a? String }
+  rescue => anomaly
+    report(name, anomaly)
+  else
+    update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: monotone?
+
+  def monotone_returns_boolean
+    name = __method__
+    rock = cosmo.toggle ? :HgAu : :vu
+    hold = cosmo.monotone? rock
+    bool = (hold.is_a?(TrueClass) or hold.is_a?(FalseClass))
   rescue => anomaly
     report(name, anomaly)
   else
@@ -1045,9 +1025,6 @@ class Epitome
       -> { tuning_value_member_stocks },
       -> { toggle_value_type_boolean },
       -> { escape_value_type_boolean },
-      -> { keyed_value_type_regexp },
-      -> { keyed_backtrack_duration },
-      -> { keyed_match_keys_scales },
       -> { gears_value_type_hash },
       -> { gears_member_keys_symbol },
       -> { gears_member_values_integer },
@@ -1070,6 +1047,7 @@ class Epitome
       -> { machine_return_type_string },
       -> { machine_return_value_length },
       -> { machine_return_value_match },
+      -> { monotone_returns_boolean },
       -> { matrix_return_type_array },
       -> { matrix_return_poly_array },
       -> { lattice_return_type_string },
@@ -1079,7 +1057,8 @@ class Epitome
       -> { compose_argument_correct },
       -> { tabulate_without_arguments },
       -> { tabulate_arguments_received },
-      -> { refinery_return_type_nil },
+      -> { refinery_return_type_array },
+      -> { refinery_array_all_strings },
       -> { excavate_without_argument },
       -> { excavate_argument_mistake },
       -> { excavate_argument_correct },

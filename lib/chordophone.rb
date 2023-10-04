@@ -7,7 +7,7 @@ module Chordophone
 class Cosmography
 
   # Public: get instance variable
-  attr_reader :decors, :keyed, :metals
+  attr_reader :decors, :metals
 
   # Public: get and set instance variable
   attr_accessor :escape, :gears, :scales, :stocks, :toggle, :tuning
@@ -18,8 +18,6 @@ class Cosmography
   # decors - array of decimal codepoints
   #
   # gears  - pitch symbols mapped to range integers
-  #
-  # keyed  - regexp pattern of signature accidentals
   #
   # metals - array of chemical element symbols
   #
@@ -43,12 +41,6 @@ class Cosmography
     @toggle = toggle
 
     @escape = true
-
-    @keyed = /\A(?>
-      (?:[ijknz]{1}[0-7]{1,3}){1,2}
-      (?:[lmwx]{1}[1-7]{1,2})?
-      (?:[hi]{,3})?
-    )\Z/uix
 
     @gears = {
       :Gj => 30,
@@ -214,15 +206,15 @@ class Cosmography
 
     if ores == jots then
       wire = yarn.tr("\x5F", ?-)
-      rock = String.new(encoding: 'UTF-8', capacity: 16)
-      mask = String.new(encoding: 'UTF-8', capacity: 16)
+      rock = String.new
+      mask = String.new
       code = 0
       numb = 0
 
       while numb < ores do
         rock = metals[numb].to_s
         code = decors[numb]
-        mask = code.chr(Encoding::UTF_8)
+        mask = code.chr
         wire = wire.gsub(rock, mask)
         numb += 1
       end
@@ -303,7 +295,7 @@ class Cosmography
   # returns new string
 
   def lattice(cord=nil, pegs=nil)
-    grid = String.new(encoding: 'UTF-8', capacity: 1024)
+    grid = String.new
 
     if cord && pegs then
       beams = pegs.map { |pitch|
@@ -355,27 +347,23 @@ class Cosmography
   # returns nil
 
   def compose(sign=nil, seal=nil)
-    if sign and keyed.match? sign then
-      sign = sign.intern
+    sign = sign.intern if sign.is_a? String
 
-      if scales.key? sign then
-        tune = tuning
-        pegs = stocks[tune]
+    if sign.is_a? Symbol and scales.include? sign then
+      tune = tuning
+      pegs = stocks[tune]
 
-        cord = scales[sign]
-        grid = lattice(cord, pegs)
+      cord = scales[sign]
+      grid = lattice(cord, pegs)
 
-        seal = epochal() unless seal
+      seal = epochal() unless seal
 
-        pres = '%s-%s-%s'
-        fest = escape ? "\e[0;33m#{pres}\e[0m" : pres
+      pres = '%s-%s-%s'
+      fest = escape ? "\e[0;33m#{pres}\e[0m" : pres
 
-        brim = format("\t#{fest}", sign, tune, seal)
+      brim = format("\t#{fest}", sign, tune, seal)
 
-        puts(brim, grid)
-      else
-        puts("\t%s ?" % flawed(sign))
-      end
+      puts(brim, grid)
     else
       puts("\t%s ?" % flawed(sign))
     end
@@ -429,7 +417,7 @@ class Cosmography
     unless arcs.empty? then
       largo = arcs.map { |elm| elm.length }
       width = largo.max
-      stout = String.new(encoding: 'UTF-8', capacity: 16)
+      stout = String.new
       cycle = 0
       colum = 7
 
@@ -448,13 +436,13 @@ class Cosmography
   end
 
 
-  # Public: print tonalities tabulated
+  # Public: populates array of unique tonalities from scales values
   #
   # Example
   #
   #   o.refinery
   #
-  # returns nil
+  # returns array
 
   def refinery
     ores = scales.values
@@ -473,15 +461,38 @@ class Cosmography
     ores.sort!
     toggle ? ores.pop : ores.shift
 
-    tabulate ores, "\s\s"
+    return ores
+  end
 
-    return nil
+
+  # Public: validates tonality string
+  #
+  # rock - tonality string or symbol
+  #
+  # Example
+  #
+  #   rock = :AuHg
+  #
+  #   o.excavate rock
+  #
+  # returns boolean
+
+  def monotone?(rock=nil)
+    bool = false
+
+    if rock then
+      rock = rock.to_s.strip
+      ores = refinery
+      bool = true if ores.include? rock
+    end
+
+    return bool
   end
 
 
   # Public: search values of scales for given tonality string
   #
-  # rock - tonality string
+  # rock - tonality string or symbol
   #
   # Example
   #
@@ -492,12 +503,9 @@ class Cosmography
   # returns nil
 
   def excavate(rock=nil)
-    alloy = toggle ?
-      /\A(?:[A-Z][a-z]){2}\Z/ : /\A(?:[o-z]){2}\Z/
+    rock = rock.to_s.strip
 
-    rock = rock.to_s unless rock.is_a? String
-
-    if alloy.match? rock then
+    if monotone?(rock) then
       veins = []
 
       scales.each_pair { |clef, wire|
@@ -510,15 +518,13 @@ class Cosmography
 
       if veins.empty? then
         puts("\n  %s ?\n" % flawed(rock))
-        refinery
+        tabulate(refinery, "\s\s")
       else
-        veins.sort!
-
-        tabulate veins
+        tabulate veins.sort
       end
     else
       puts("\n  %s ?\n" % flawed(rock))
-      refinery
+      tabulate(refinery, "\s\s")
     end
 
     return nil
@@ -538,31 +544,21 @@ class Cosmography
   # returns nil
 
   def similar(spat=nil)
-    clefs = scales.keys.sort
-    model = /\A\b(?:[i-nw-z]?[0-7]{,3}){,3}\Z/
+    arks = scales.keys.sort
+    spat = spat.to_s.strip
+    clad = Array.new
 
-    spat = spat.to_s unless spat.is_a? String
-
-    if model.match? spat then
-      kinds = []
-
-      clefs.each { |sign|
-        if sign.to_s.include? spat then
-          kinds.push sign
-        end
-      }
-
-      if kinds.empty? then
-        puts("\n\t%s ?\n" % flawed(spat))
-
-        tabulate clefs
-      else
-        tabulate kinds
+    arks.each do |sign|
+      if sign.to_s.include? spat
+      then clad.push sign
       end
-    else
-      puts("\n\t%s ?\n" % flawed(spat))
+    end
 
-      tabulate clefs
+    if clad.empty? then
+      puts("\n\t%s ?\n" % flawed(spat))
+      tabulate arks
+    else
+      tabulate clad
     end
 
     return nil
@@ -671,7 +667,7 @@ class Cosmography
       if    parts.include?(:gamut) then entirety
       elsif parts.include?(:group) then cluster(parts, :group)
       elsif parts.include?(:query) then cluster(parts, :query)
-      elsif parts.include?(:tonal) then refinery
+      elsif parts.include?(:tonal) then tabulate(refinery, "\s\s")
       else
         stamp = epochal
 
