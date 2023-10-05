@@ -196,18 +196,19 @@ class Cosmography
   #
   #   yarn = o.scales[:n0]
   #
-  #   puts o.spindle yarn
+  #   p o.spindle yarn
   #
   # returns new string
 
-  def spindle(yarn=(?- * 60))
+  def spindle(yarn=nil)
     ores = metals.length
     jots = decors.length
+    unit = ?\u{2D}
 
-    if ores == jots then
-      wire = yarn.tr("\x5F", ?-)
-      rock = String.new
-      mask = String.new
+    if yarn and (ores == jots) then
+      wire = yarn.to_s.tr("\x5F", unit)
+      rock = String.new(unit * 2)
+      mask = String.new unit
       code = 0
       numb = 0
 
@@ -219,7 +220,9 @@ class Cosmography
         numb += 1
       end
 
-      yarn = wire.gsub('--', ?\u{5F}) # 2014
+      yarn = wire.gsub((unit * 2), ?\u{5F}) # 2014
+    else
+      yarn = String.new(unit * 36)
     end
 
     return yarn
@@ -237,14 +240,21 @@ class Cosmography
   #   cord = o.scales[:n0]
   #   numb = o.gears[:Gn]
   #
-  #   puts o.machine(cord, numb)
+  #   p o.machine(cord, numb)
   #
   # returns new string
 
-  def machine(cord=(?- * 60), numb=0)
-    jute = cord[numb, 60] << cord[ 0, numb]
-    yarn = jute.concat(jute[0, 4]) # octave
-    yarn = spindle(yarn) unless toggle
+  def machine(cord=nil, numb=0)
+    span = 60
+    yarn = String.new(?- * span)
+
+    if (cord.is_a? String) and (numb.is_a? Integer) and
+      (cord.length >= span) and (numb <= cord.length) then
+      numb = numb.abs if numb.negative?
+      jute = cord[numb, span] << cord[ 0, numb]
+      yarn = jute.concat(jute[0, 4]) # octave
+      yarn = spindle(yarn) unless toggle
+    end
 
     return yarn
   end
@@ -260,9 +270,13 @@ class Cosmography
   #
   #   harp = :beadgcf
   #   clef = :j23
-  #   grid = o.matrix(harp, clef)
   #
-  #   grid.each { |crow| printf("\t%s\n", crow.join(?\s)) }
+  #   grid = o.matrix(harp, clef)
+  #   grid = grid.reverse.transpose
+  #
+  #   face = grid.map { |crow| "\t%s\n" % crow.join(?\s) }
+  #
+  #   puts face.join
   #
   # returns multidimensional array
 
@@ -297,13 +311,12 @@ class Cosmography
   def lattice(cord=nil, pegs=nil)
     grid = String.new
 
-    if cord && pegs then
-      beams = pegs.map { |pitch|
+    if cord and pegs then
+      beams = pegs.map do |pitch|
         machine(cord, gears[pitch])
-      }
+      end
 
       truss = "\t%s\n" * beams.count
-
       grid = truss % beams
     end
 
@@ -315,7 +328,7 @@ class Cosmography
   #
   # Example
   #
-  #   seal = o.epochal
+  #   seal = o.epochal()
   #
   #   puts seal
   #
@@ -332,7 +345,7 @@ class Cosmography
 
   # Public: print table for given key
   #
-  # sign - scales key string
+  # sign - scales key string or symbol
   #
   # seal - sequential string
   #
@@ -340,7 +353,7 @@ class Cosmography
   #
   #   sign = :n0
   #
-  #   seal = o.epochal
+  #   seal = o.epochal()
   #
   #   o.compose(sign, seal)
   #
@@ -349,7 +362,7 @@ class Cosmography
   def compose(sign=nil, seal=nil)
     sign = sign.intern if sign.is_a? String
 
-    if sign.is_a? Symbol and scales.include? sign then
+    if (sign.is_a? Symbol) and (scales.include? sign) then
       tune = tuning
       pegs = stocks[tune]
 
@@ -376,13 +389,13 @@ class Cosmography
   #
   # Example
   #
-  #   o.entirety
+  #   o.entirety()
   #
   # returns nil
 
   def entirety
     odes = scales.keys.sort
-    seal = epochal
+    seal = epochal()
     self.escape = false
 
     puts
@@ -440,7 +453,9 @@ class Cosmography
   #
   # Example
   #
-  #   o.refinery
+  #   ores = o.refinery()
+  #
+  #   o.tabulate(ores, ?\s)
   #
   # returns array
 
@@ -482,7 +497,7 @@ class Cosmography
 
     if rock then
       rock = rock.to_s.strip
-      ores = refinery
+      ores = refinery()
       bool = true if ores.include? rock
     end
 
@@ -508,23 +523,21 @@ class Cosmography
     if monotone?(rock) then
       veins = []
 
-      scales.each_pair { |clef, wire|
+      scales.each_pair do |clef, wire|
         wire = spindle(wire) unless toggle
 
-        if wire.include? rock then
-          veins.push(clef)
-        end
-      }
+        veins.push(clef) if wire.include? rock
+      end
 
       if veins.empty? then
         puts("\n  %s ?\n" % flawed(rock))
-        tabulate(refinery, "\s\s")
+        tabulate(refinery(), "\s\s")
       else
         tabulate veins.sort
       end
     else
-      puts("\n  %s ?\n" % flawed(rock))
-      tabulate(refinery, "\s\s")
+      puts("\n  %s ?\n" % flawed(rock)) unless rock.empty?
+      tabulate(refinery(), "\s\s")
     end
 
     return nil
@@ -569,7 +582,7 @@ class Cosmography
   #
   # Example
   #
-  #   o.catalog
+  #   o.catalog()
   #
   # returns nil
 
@@ -608,11 +621,9 @@ class Cosmography
   # returns nil
 
   def cluster(args=nil, tool=nil)
-    if args.is_a? Array and tool.is_a? Symbol
+    if (args.is_a? Array) and (tool.is_a? Symbol) then
       pars = args.map do |item|
-        if item.is_a? Integer then item.to_s
-        else item.intern
-        end
+        (item.is_a? Integer) ? item.to_s : item.intern
       end
 
       spot = pars.index(tool)
@@ -636,18 +647,18 @@ class Cosmography
 
   # Public: parse arguments for logical branching
   #
-  # args - array of argument strings
+  # args - array of argument strings or symbols
   #
   # Example
   #
-  #   args = %w[group AuHg]
+  #   args = %i[group AuHg]
   #
-  #   o.vestibule(args)
+  #   o.vestibule args
   #
   # returns nil
 
   def vestibule(args=[])
-    if args.any? then
+    if args.all? then
       parts = args.map { |item| item.intern }
       harps = stocks.keys
       where = parts.index do |item|
@@ -659,17 +670,17 @@ class Cosmography
         self.tuning = tuned
 
         if parts.empty? then
-          catalog
+          catalog()
           return nil
         end
       end
 
-      if    parts.include?(:gamut) then entirety
+      if    parts.include?(:gamut) then entirety()
       elsif parts.include?(:group) then cluster(parts, :group)
       elsif parts.include?(:query) then cluster(parts, :query)
-      elsif parts.include?(:tonal) then tabulate(refinery, "\s\s")
+      elsif parts.include?(:tonal) then tabulate(refinery(), "\s\s")
       else
-        stamp = epochal
+        stamp = epochal()
 
         puts
         parts.each do |argot|
@@ -679,7 +690,7 @@ class Cosmography
       end
 
     else
-      catalog
+      catalog()
     end
 
     return nil
@@ -688,13 +699,13 @@ class Cosmography
 
   # Public: application entry point
   #
-  # args - array of argument strings
+  # args - array of argument strings or symbols
   #
   # Example
   #
-  #   args = %w[cgdae n0 j3]
+  #   args = %i[cgdae n0 j3]
   #
-  #   o.entryway(args)
+  #   o.entryway args
   #
   # returns nil
 
@@ -713,14 +724,14 @@ class Cosmography
         end
 
         if args.empty? then
-          catalog
+          catalog()
         else
           vestibule(args)
         end
       end
 
     else
-      catalog
+      catalog()
     end
 
     return nil

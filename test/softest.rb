@@ -410,7 +410,7 @@ class Epitome
 
   def flawed_return_type_string
     name = __method__
-    hold = cosmo.flawed
+    hold = cosmo.flawed :typo
     bool = hold.is_a? String
   rescue => anomaly
     report(name, anomaly)
@@ -425,7 +425,8 @@ class Epitome
 
   def spindle_return_type_string
     name = __method__
-    hold = cosmo.spindle
+    yarn = nil
+    hold = cosmo.spindle yarn
     bool = hold.is_a? String
   rescue => anomaly
     report(name, anomaly)
@@ -441,7 +442,7 @@ class Epitome
   def spindle_return_value_length
     name = __method__
     yarn = cosmo.scales.fetch(:n0)
-    hold = cosmo.spindle(yarn)
+    hold = cosmo.spindle yarn
     span = hold.length
     bool = span.eql? 36
   rescue => anomaly
@@ -457,7 +458,9 @@ class Epitome
 
   def machine_return_type_string
     name = __method__
-    hold = cosmo.machine
+    cord = nil
+    numb = nil
+    hold = cosmo.machine(cord, numb)
     bool = hold.is_a? String
   rescue => anomaly
     report(name, anomaly)
@@ -556,11 +559,28 @@ class Epitome
   end
 
 
+  # method: lattice
+
+  def lattice_return_value_empty
+    name = __method__
+    cord = cosmo.scales[:n0]
+    pegs = nil
+    hold = cosmo.lattice(cord, pegs)
+    bool = hold.empty?
+  rescue => anomaly
+    report(name, anomaly)
+  else
+    update(name, bool)
+  ensure
+    return nil
+  end
+
+
   # method: epochal
 
   def epochal_return_type_string
     name = __method__
-    hold = cosmo.epochal
+    hold = cosmo.epochal()
     bool = hold.instance_of? String
   rescue => anomaly
     report(name, anomaly)
@@ -607,7 +627,7 @@ class Epitome
   def compose_argument_correct
     name = __method__
     sign = 'n0'
-    seal = cosmo.epochal
+    seal = cosmo.epochal()
     hold = cosmo.compose(sign, seal)
     bool = hold.instance_of? NilClass
   rescue => anomaly
@@ -623,7 +643,7 @@ class Epitome
 
   def entirety_return_type_nil
     name = __method__
-    hold = cosmo.entirety
+    hold = cosmo.entirety()
     bool = hold.instance_of? NilClass
   rescue => anomaly
     report(name, anomaly)
@@ -670,7 +690,7 @@ class Epitome
 
   def refinery_return_type_array
     name = __method__
-    hold = cosmo.refinery
+    hold = cosmo.refinery()
     bool = hold.instance_of? Array
   rescue => anomaly
     report(name, anomaly)
@@ -685,7 +705,7 @@ class Epitome
 
   def refinery_array_all_strings
     name = __method__
-    hold = cosmo.refinery
+    hold = cosmo.refinery()
     bool = hold.all? { |item| item.is_a? String }
   rescue => anomaly
     report(name, anomaly)
@@ -810,7 +830,7 @@ class Epitome
 
   def catalog_return_type_nil
     name = __method__
-    hold = cosmo.catalog
+    hold = cosmo.catalog()
     bool = hold.instance_of? NilClass
   rescue => anomaly
     report(name, anomaly)
@@ -1051,6 +1071,7 @@ class Epitome
       -> { matrix_return_type_array },
       -> { matrix_return_poly_array },
       -> { lattice_return_type_string },
+      -> { lattice_return_value_empty },
       -> { epochal_return_type_string },
       -> { compose_without_argument },
       -> { compose_argument_mistake },
