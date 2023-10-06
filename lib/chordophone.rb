@@ -343,7 +343,7 @@ class Cosmography
   end
 
 
-  # Public: print table for given key
+  # public: print table for given key
   #
   # sign - scales key string or symbol
   #
@@ -602,6 +602,48 @@ class Cosmography
   end
 
 
+  # public: print directive samples
+  #
+  # Example
+  #
+  #   o.tutorial()
+  #
+  # returns nil
+
+  def tutorial
+    fold = File.basename(File.dirname(__FILE__))
+    base = File.basename(__FILE__)
+    path = File.join(fold, base)
+
+    tone = toggle ? 'HgAu' : 'vu'
+    list = [
+      'help',
+      'cgdae n0 j3',
+      'tonal',
+      "group #{tone}",
+      'query 56',
+      'gamut | sensible-pager'
+    ]
+
+    catalog()
+
+    if ($0 == nil) or ($0 == 'irb') then
+      numb = 0
+
+      while numb < 5 do
+        printf("\t\to.entryway %s\n\n", list[numb].split)
+        numb += 1
+      end
+    else
+      list.each do |item|
+        printf("\t\truby %s %s\n\n", path, item)
+      end
+    end
+
+    return nil
+  end
+
+
   # Public: branches between search utilities
   #
   # args - array of numbers, strings or symbols
@@ -675,12 +717,12 @@ class Cosmography
         end
       end
 
-      if    parts.include?(:gamut) then entirety()
+      if parts.include?(:help) then tutorial()
+      elsif parts.include?(:gamut) then entirety()
       elsif parts.include?(:group) then cluster(parts, :group)
       elsif parts.include?(:query) then cluster(parts, :query)
       elsif parts.include?(:tonal) then tabulate(refinery(), "\s\s")
-      else
-        stamp = epochal()
+      else stamp = epochal()
 
         puts
         parts.each do |argot|
@@ -688,7 +730,6 @@ class Cosmography
           puts
         end
       end
-
     else
       catalog()
     end

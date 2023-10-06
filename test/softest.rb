@@ -841,6 +841,21 @@ class Epitome
   end
 
 
+  # method: tutorial
+
+  def tutorial_return_type_nil
+    name = __method__
+    hold = cosmo.tutorial()
+    bool = hold.instance_of? NilClass
+  rescue => anomaly
+    report(name, anomaly)
+  else
+    update(name, bool)
+  ensure
+    return nil
+  end
+
+
   # method: cluster
 
   def cluster_without_arguments
@@ -1087,6 +1102,7 @@ class Epitome
       -> { similar_argument_mistake },
       -> { similar_argument_correct },
       -> { catalog_return_type_nil },
+      -> { tutorial_return_type_nil },
       -> { cluster_without_arguments },
       -> { cluster_typograph_mistake },
       -> { cluster_parameter_mistake },

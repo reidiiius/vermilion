@@ -20,11 +20,11 @@ Command-line
 
 :
 
-    ruby lib/chordophone.rb n0
+    ruby lib/chordophone.rb help
 
 :
 
-    ruby lib/chordophone.rb j6 k5
+    ruby lib/chordophone.rb n0 j3
 
 :
 
@@ -56,7 +56,7 @@ REPL
 
 ;
 
-    o.catalog
+    o.entryway [:help]
 
 ;
 
