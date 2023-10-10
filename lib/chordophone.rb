@@ -188,6 +188,39 @@ class Cosmography
   end
 
 
+  # Public: copies value referenced by scales key
+  #
+  # sign - signature symbol from scales keys
+  #
+  # Example
+  #
+  #   sign = :n0
+  #
+  #   hold = o.scales[sign]
+  #
+  #   cord = o.retrieve sign
+  #
+  #   cord.object_id != hold.object_id
+  #
+  # returns new string
+
+  def retrieve(sign=nil)
+    lace = nil
+    tape = ('____ ' * 12)
+    cord = String.new
+
+    if scales.respond_to?(:fetch) then
+      lace = scales.send(:fetch, sign, tape)
+      cord = lace.dup
+    else
+      lace = scales[sign]
+      cord = (lace.dup or tape)
+    end
+
+    return cord
+  end
+
+
   # Public: transforms substrata of given string
   #
   # yarn - string to transform
@@ -366,7 +399,7 @@ class Cosmography
       tune = tuning
       pegs = stocks[tune]
 
-      cord = scales[sign]
+      cord = retrieve sign
       grid = lattice(cord, pegs)
 
       seal = epochal() unless seal

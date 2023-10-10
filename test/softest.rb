@@ -421,6 +421,39 @@ class Epitome
   end
 
 
+  # method: retrieve
+
+  def retrieve_return_type_string
+    name = __method__
+    sign = :n0
+    hold = cosmo.retrieve sign
+    bool = hold.is_a? String
+  rescue => anomaly
+    report(name, anomaly)
+  else
+    update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: retrieve
+
+  def retrieve_return_string_copy
+    name = __method__
+    sign = :n0
+    hold = cosmo.scales[sign]
+    cord = cosmo.retrieve sign
+    bool = (cord.object_id != hold.object_id)
+  rescue => anomaly
+    report(name, anomaly)
+  else
+    update(name, bool)
+  ensure
+    return nil
+  end
+
+
   # method: spindle
 
   def spindle_return_type_string
@@ -445,6 +478,23 @@ class Epitome
     hold = cosmo.spindle yarn
     span = hold.length
     bool = span.eql? 36
+  rescue => anomaly
+    report(name, anomaly)
+  else
+    update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: spindle
+
+  def spindle_return_value_match
+    name = __method__
+    yarn = cosmo.scales.fetch(:n0)
+    hold = cosmo.spindle yarn
+    wire = 'vr __ tt __ rv wq __ us __ su __ qw '
+    bool = hold.eql? wire
   rescue => anomaly
     report(name, anomaly)
   else
@@ -1076,9 +1126,12 @@ class Epitome
       -> { scales_member_keys_symbol },
       -> { scales_member_values_string },
       -> { scales_member_values_length },
+      -> { retrieve_return_type_string },
+      -> { retrieve_return_string_copy },
       -> { flawed_return_type_string },
       -> { spindle_return_type_string },
       -> { spindle_return_value_length },
+      -> { spindle_return_value_match },
       -> { machine_return_type_string },
       -> { machine_return_value_length },
       -> { machine_return_value_match },
