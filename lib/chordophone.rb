@@ -188,6 +188,35 @@ class Cosmography
   end
 
 
+  # Public: copies value referenced by stocks key
+  #
+  # tune - tuning symbol from stocks keys
+  #
+  # Example
+  #
+  #   tune = o.tuning
+  #
+  #   hold = o.stocks[tune]
+  #
+  #   pegs = o.populate tune
+  #
+  #   pegs.object_id != hold.object_id
+  #
+  # returns new array
+
+  def populate(tune=tuning)
+    pegs = Array.new
+
+    if stocks.include?(tune) then
+      pegs = stocks[tune].select do |item|
+        (item.is_a? Symbol) and (gears.include? item)
+      end
+    end
+
+    return pegs
+  end
+
+
   # Public: copies value referenced by scales key
   #
   # sign - signature symbol from scales keys
@@ -344,7 +373,9 @@ class Cosmography
   def lattice(cord=nil, pegs=nil)
     grid = String.new
 
-    if cord and pegs then
+    if (cord.is_a? String) and (not cord.empty?) and
+       (pegs.is_a? Array ) and (not pegs.empty?) then
+
       beams = pegs.map do |pitch|
         machine(cord, gears[pitch])
       end
@@ -397,10 +428,7 @@ class Cosmography
 
     if (sign.is_a? Symbol) and (scales.include? sign) then
       tune = tuning
-      pegs = stocks[tune].select do |item|
-        (item.is_a? Symbol) and (gears.include? item)
-      end
-
+      pegs = populate tune
       cord = retrieve sign
       grid = lattice(cord, pegs)
 
@@ -408,7 +436,6 @@ class Cosmography
 
       pres = '%s-%s-%s'
       fest = escape ? "\e[0;33m#{pres}\e[0m" : pres
-
       brim = format("\t#{fest}", sign, tune, seal)
 
       puts(brim, grid)

@@ -421,6 +421,39 @@ class Epitome
   end
 
 
+  # method: populate
+
+  def populate_return_type_array
+    name = __method__
+    tune = cosmo.tuning
+    hold = cosmo.populate tune
+    bool = hold.is_a? Array
+  rescue => anomaly
+    report(name, anomaly)
+  else
+    update(name, bool)
+  ensure
+    return nil
+  end
+
+
+  # method: populate
+
+  def populate_return_array_copy
+    name = __method__
+    tune = cosmo.tuning
+    hold = cosmo.stocks[tune]
+    pegs = cosmo.populate tune
+    bool = (pegs.object_id != hold.object_id)
+  rescue => anomaly
+    report(name, anomaly)
+  else
+    update(name, bool)
+  ensure
+    return nil
+  end
+
+
   # method: retrieve
 
   def retrieve_return_type_string
@@ -1126,9 +1159,11 @@ class Epitome
       -> { scales_member_keys_symbol },
       -> { scales_member_values_string },
       -> { scales_member_values_length },
+      -> { flawed_return_type_string },
+      -> { populate_return_type_array },
+      -> { populate_return_array_copy },
       -> { retrieve_return_type_string },
       -> { retrieve_return_string_copy },
-      -> { flawed_return_type_string },
       -> { spindle_return_type_string },
       -> { spindle_return_value_length },
       -> { spindle_return_value_match },
