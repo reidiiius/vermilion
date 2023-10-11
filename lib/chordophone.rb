@@ -397,7 +397,9 @@ class Cosmography
 
     if (sign.is_a? Symbol) and (scales.include? sign) then
       tune = tuning
-      pegs = stocks[tune]
+      pegs = stocks[tune].select do |item|
+        (item.is_a? Symbol) and (gears.include? item)
+      end
 
       cord = retrieve sign
       grid = lattice(cord, pegs)
@@ -789,6 +791,8 @@ class Cosmography
       if args.length > scales.length then
         puts 'Request denied'
       else
+        args.compact!
+
         args.map! do |argot|
           argot.to_s
         end
