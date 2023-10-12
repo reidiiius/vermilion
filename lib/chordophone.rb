@@ -195,9 +195,7 @@ class Cosmography
   # Example
   #
   #   tune = o.tuning
-  #
   #   hold = o.stocks[tune]
-  #
   #   pegs = o.populate tune
   #
   #   pegs.object_id != hold.object_id
@@ -224,9 +222,7 @@ class Cosmography
   # Example
   #
   #   sign = :n0
-  #
   #   hold = o.scales[sign]
-  #
   #   cord = o.retrieve sign
   #
   #   cord.object_id != hold.object_id
@@ -256,7 +252,7 @@ class Cosmography
   #
   # Example
   #
-  #   yarn = o.scales[:n0]
+  #   yarn = o.retrieve :n0
   #
   #   p o.spindle yarn
   #
@@ -299,8 +295,8 @@ class Cosmography
   #
   # Example
   #
-  #   cord = o.scales[:n0]
-  #   numb = o.gears[:Gn]
+  #   cord = o.retrieve :n0
+  #   numb = o.gears.fetch(:Gn, 0)
   #
   #   p o.machine(cord, numb)
   #
@@ -363,8 +359,8 @@ class Cosmography
   #
   # Example
   #
-  #   cord = o.scales[:n0]
-  #   pegs = o.stocks[:cgdae]
+  #   cord = o.retrieve :n0
+  #   pegs = o.populate :cgdae
   #
   #   puts o.lattice(cord, pegs)
   #
@@ -411,28 +407,30 @@ class Cosmography
   #
   # sign - scales key string or symbol
   #
+  # tune - stocks key symbol
+  #
   # seal - sequential string
   #
   # Example
   #
   #   sign = :n0
-  #
+  #   tune = :cgdae
   #   seal = o.epochal()
   #
-  #   o.compose(sign, seal)
+  #   o.compose(sign, tune, seal)
   #
   # returns nil
 
-  def compose(sign=nil, seal=nil)
+  def compose(sign=nil, tune=nil, seal=nil)
     sign = sign.intern if sign.is_a? String
 
     if (sign.is_a? Symbol) and (scales.include? sign) then
-      tune = tuning
-      pegs = populate tune
-      cord = retrieve sign
-      grid = lattice(cord, pegs)
-
+      tune = tuning unless tune
       seal = epochal() unless seal
+
+      cord = retrieve sign
+      pegs = populate tune
+      grid = lattice(cord, pegs)
 
       pres = '%s-%s-%s'
       fest = escape ? "\e[0;33m#{pres}\e[0m" : pres
@@ -457,12 +455,14 @@ class Cosmography
 
   def entirety
     odes = scales.keys.sort
+    tune = tuning
     seal = epochal()
+
     self.escape = false
 
     puts
     odes.each do |sign|
-      compose(sign, seal)
+      compose(sign, tune, seal)
       puts
     end
 
@@ -481,7 +481,6 @@ class Cosmography
   # Example
   #
   #   arcs = o.scales.keys.sort
-  #
   #   pads = ?\t
   #
   #   o.tabulate(arcs, pads)
@@ -550,7 +549,7 @@ class Cosmography
   #
   #   rock = :AuHg
   #
-  #   o.excavate rock
+  #   o.monotone? rock
   #
   # returns boolean
 
@@ -770,8 +769,7 @@ class Cosmography
       end
 
       if where then
-        tuned = parts.delete_at(where)
-        self.tuning = tuned
+        self.tuning = parts.delete_at(where)
 
         if parts.empty? then
           catalog()
@@ -784,11 +782,12 @@ class Cosmography
       elsif parts.include?(:group) then cluster(parts, :group)
       elsif parts.include?(:query) then cluster(parts, :query)
       elsif parts.include?(:tonal) then tabulate(refinery(), "\s\s")
-      else stamp = epochal()
+      else tune = tuning
+        seal = epochal()
 
         puts
-        parts.each do |argot|
-          compose(argot, stamp)
+        parts.each do |sign|
+          compose(sign, tune, seal)
           puts
         end
       end

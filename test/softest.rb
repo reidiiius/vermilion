@@ -710,8 +710,9 @@ class Epitome
   def compose_argument_correct
     name = __method__
     sign = 'n0'
+    tune = cosmo.tuning
     seal = cosmo.epochal()
-    hold = cosmo.compose(sign, seal)
+    hold = cosmo.compose(sign, tune, seal)
     bool = hold.instance_of? NilClass
   rescue => anomaly
     report(name, anomaly)
