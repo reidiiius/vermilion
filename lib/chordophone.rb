@@ -395,9 +395,8 @@ class Cosmography
   # returns string
 
   def epochal
-    epoch = "i%d" % Time.now.to_i
-    crypt = rand(10_000_000).to_s(16)
-    stamp = sprintf("%s-%s", epoch, crypt)
+    epoch = "i%.5f" % Time.now.to_f
+    stamp = epoch.tr( ?. , ?- )
 
     return stamp
   end
